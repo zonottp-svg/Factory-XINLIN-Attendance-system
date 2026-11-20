@@ -1,0 +1,337 @@
+// ===== កាលវិភាគម៉ោងការងាររោងចក្រ =====
+var STATIC_QR_CODE = "FACTORY_GATE_MAIN_2026"; 
+var ENABLE_GPS_CHECK = true;          
+var FACTORY_LAT = 11.536251981198479;              
+var FACTORY_LNG = 104.82075360079638;             
+var MAX_DISTANCE_METERS = 150;          
+
+// វេនព្រឹក
+var AM_START_HOUR = 7;   var AM_START_MIN = 0;   // ៧:០០ ព្រឹកចូល
+var AM_END_HOUR = 11;    var AM_END_MIN = 0;     // ១១:០០ ព្រឹកចេញបាយ
+
+// វេនរសៀល
+var PM_START_HOUR = 12;  var PM_START_MIN = 0;   // ១២:០០ ថ្ងៃចូលវិញ
+var PM_END_HOUR = 16;    var PM_END_MIN = 0;     // ៤:០០ ល្ងាចចេញធម្មតា
+// ======================================
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var workerId = (data.workerId || "").toString().trim().toUpperCase();
+    var pin = (data.pin || "").toString().trim();
+    var deviceId = (data.deviceId || "").toString().trim();
+    var qrText = (data.qrText || "").toString().trim();
+    var photoBase64 = data.photoBase64 || "";
+    var scanType = data.scanType === "OUT" ? "ចេញ" : "ចូល";
+    var userLat = parseFloat(data.lat);
+    var userLng = parseFloat(data.lng);
+
+    if (!workerId || !pin || !qrText || !deviceId) {
+      return jsonResponse(false, "ទិន្នន័យមិនគ្រប់គ្រាន់!");
+    }
+
+    // ១. ផ្ទៀងផ្ទាត់ QR Code លើក្រដាស
+    if (qrText !== STATIC_QR_CODE) {
+      return jsonResponse(false, "QR Code មិនត្រឹមត្រូវទេ!");
+    }
+
+    // ២. ផ្ទៀងផ្ទាត់ GPS (បើបើក)
+    if (ENABLE_GPS_CHECK) {
+      if (isNaN(userLat) || isNaN(userLng)) return jsonResponse(false, "សូមបើក Location GPS លើទូរស័ព្ទ!");
+      var dist = Math.round(getDistanceMeters(userLat, userLng, FACTORY_LAT, FACTORY_LNG));
+      if (dist > MAX_DISTANCE_METERS) return jsonResponse(false, "អ្នកនៅក្រៅបរិវេណរោងចក្រ (" + dist + "m)!");
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var workerSheet = ss.getSheetByName("Workers");
+    var attSheet = ss.getSheetByName("Attendance");
+
+    // ៣. ឆែក Device Lock (១ ទូរស័ព្ទ = ១ កម្មករ)
+    var workers = workerSheet.getDataRange().getValues();
+    var foundWorkerRow = -1;
+    var workerName = "";
+    var workerLine = "";
+    var currentWorkerSavedDevice = "";
+    var deviceOwnerName = "";
+    var deviceOwnerId = "";
+
+    for (var i = 1; i < workers.length; i++) {
+      var rowId = workers[i][0].toString().trim().toUpperCase();
+      var rowName = workers[i][1];
+      var rowDevice = workers[i][5] ? workers[i][5].toString().trim() : "";
+
+      if (rowDevice !== "" && rowDevice === deviceId) {
+        deviceOwnerId = rowId;
+        deviceOwnerName = rowName;
+      }
+
+      if (rowId === workerId) {
+        foundWorkerRow = i + 1;
+        workerName = rowName;
+        workerLine = workers[i][2];
+        var savedPin = workers[i][4].toString().trim();
+        currentWorkerSavedDevice = rowDevice;
+
+        if (savedPin !== pin) {
+          return jsonResponse(false, "លេខសម្ងាត់ PIN មិនត្រឹមត្រូវទេ!");
+        }
+      }
+    }
+
+    if (foundWorkerRow === -1) return jsonResponse(false, "រកមិនឃើញអត្តលេខ " + workerId + " ទេ!");
+
+    if (deviceOwnerId !== "" && deviceOwnerId !== workerId) {
+      return jsonResponse(false, "ទូរស័ព្ទនេះជាកម្មសិទ្ធិរបស់ [" + deviceOwnerName + "] រួចហើយ! មិនអាចស្កេនជំនួសគេបានទេ។");
+    }
+
+    if (currentWorkerSavedDevice === "") {
+      workerSheet.getRange(foundWorkerRow, 6).setValue(deviceId);
+    } else if (currentWorkerSavedDevice !== deviceId) {
+      return jsonResponse(false, "អត្តលេខនេះត្រូវបានចងភ្ជាប់ជាមួយទូរស័ព្ទផ្សេងរួចហើយ!");
+    }
+
+    // ៤. ពេលវេលា និងស្វែងរកជួរទិន្នន័យប្រចាំថ្ងៃរបស់កម្មករ
+    var now = new Date();
+    var tz = "Asia/Phnom_Penh";
+    var dateStr = Utilities.formatDate(now, tz, "yyyy-MM-dd");
+    var timeStr = Utilities.formatDate(now, tz, "HH:mm:ss");
+    var hour = parseInt(Utilities.formatDate(now, tz, "H"), 10);
+    var minute = parseInt(Utilities.formatDate(now, tz, "m"), 10);
+    var nowTotalMins = hour * 60 + minute;
+
+    // ស្វែងរកមើលថាតើថ្ងៃនេះកម្មករនេះមានជួរក្នុង Attendance ហើយឬនៅ
+    var attData = attSheet.getDataRange().getValues();
+    var targetRow = -1;
+
+    for (var r = 1; r < attData.length; r++) {
+      var rDate = Utilities.formatDate(new Date(attData[r][0]), tz, "yyyy-MM-dd");
+      var rId = attData[r][1].toString().trim().toUpperCase();
+      if (rDate === dateStr && rId === workerId) {
+        targetRow = r + 1;
+        break;
+      }
+    }
+
+    // បើមិនទាន់មាន បង្កើតជួរថ្មីសម្រាប់ថ្ងៃនេះ
+    if (targetRow === -1) {
+      attSheet.appendRow([dateStr, workerId, workerName, workerLine, "", "", "", "", "ទាន់ម៉ោង", "0 នាទី", "0 នាទី", 0, 0, ""]);
+      targetRow = attSheet.getLastRow();
+    }
+
+    // ៥. ពិនិត្យមើលថាតើត្រូវបញ្ចូលក្នុង Column ណា (ព្រឹកចូល/ចេញ ឬ ថ្ងៃចូល/ចេញ)
+    var scanActionName = "";
+    var statusText = "";
+    var currentStatus = attSheet.getRange(targetRow, 9).getValue();
+
+    // កំណត់ម៉ោងជាលេខនាទី
+    var amStartMins = AM_START_HOUR * 60 + AM_START_MIN; // 420 (7:00)
+    var amEndMins = AM_END_HOUR * 60 + AM_END_MIN;       // 660 (11:00)
+    var pmStartMins = PM_START_HOUR * 60 + PM_START_MIN; // 720 (12:00)
+    var pmEndMins = PM_END_HOUR * 60 + PM_END_MIN;       // 960 (16:00)
+
+    if (scanType === "ចូល") {
+      if (nowTotalMins < 690) { // មុនម៉ោង ១១:៣០ -> ព្រឹកចូល (In_AM - Column E)
+        scanActionName = "ព្រឹកចូល";
+        attSheet.getRange(targetRow, 5).setValue(timeStr);
+
+        if (nowTotalMins > amStartMins) {
+          var lateMins = nowTotalMins - amStartMins;
+          statusText = "ព្រឹកយឺត " + formatMinutes(lateMins);
+          attSheet.getRange(targetRow, 10).setValue(formatMinutes(lateMins));
+        } else {
+          statusText = "ព្រឹកទាន់ម៉ោង";
+        }
+      } else { // ក្រោយម៉ោង ១១:៣០ -> ថ្ងៃចូលវិញ (In_PM - Column G)
+        scanActionName = "ថ្ងៃចូល";
+        attSheet.getRange(targetRow, 7).setValue(timeStr);
+
+        if (nowTotalMins > pmStartMins) {
+          var latePmMins = nowTotalMins - pmStartMins;
+          statusText = "ថ្ងៃយឺត " + formatMinutes(latePmMins);
+          attSheet.getRange(targetRow, 10).setValue(formatMinutes(latePmMins));
+        } else {
+          statusText = "ថ្ងៃទាន់ម៉ោង";
+        }
+      }
+    } else {
+      // ករណី ស្កេនចេញ
+      if (nowTotalMins < 810) { // មុនម៉ោង ១:៣០ រសៀល -> ព្រឹកចេញបាយ (Out_AM - Column F)
+        scanActionName = "ព្រឹកចេញបាយ";
+        attSheet.getRange(targetRow, 6).setValue(timeStr);
+
+        if (nowTotalMins < amEndMins) {
+          var earlyAm = amEndMins - nowTotalMins;
+          statusText = "ចេញបាយមុន " + formatMinutes(earlyAm);
+          attSheet.getRange(targetRow, 11).setValue(formatMinutes(earlyAm));
+        } else {
+          statusText = "ចេញបាយទាន់ម៉ោង";
+        }
+      } else { // ក្រោយម៉ោង ១:៣០ រសៀល -> ល្ងាចចេញ (Out_PM - Column H)
+        scanActionName = "ល្ងាចចេញ";
+        attSheet.getRange(targetRow, 8).setValue(timeStr);
+
+        if (nowTotalMins < pmEndMins) {
+          // ចេញមុនម៉ោង ៤:០០
+          var earlyPm = pmEndMins - nowTotalMins;
+          statusText = "ចេញមុន " + formatMinutes(earlyPm);
+          attSheet.getRange(targetRow, 11).setValue(formatMinutes(earlyPm));
+        } else if (nowTotalMins < 1035) {
+          statusText = "ចេញធម្មតា (ទាន់ម៉ោង)";
+        } else if (nowTotalMins >= 1035 && nowTotalMins < 1125) {
+          // ថែមម៉ោងទី ១ (ម៉ោង ៤ ដល់ ៦) -> OT 1 = 2 ម៉ោង
+          statusText = "ថែមម៉ោងទី ១ (OT 1)";
+          attSheet.getRange(targetRow, 12).setValue(2);
+        } else if (nowTotalMins >= 1125 && nowTotalMins < 1245) {
+          // ថែមម៉ោងទី ២ (ម៉ោង ៦ ដល់ ៨) -> OT 1 = 2, OT 2 = 2
+          statusText = "ថែមម៉ោងទី ២ (OT 1 + OT 2)";
+          attSheet.getRange(targetRow, 12).setValue(2);
+          attSheet.getRange(targetRow, 13).setValue(2);
+        } else {
+          statusText = "ថែមម៉ោងពិសេស (យប់ជ្រៅ)";
+          attSheet.getRange(targetRow, 12).setValue(2);
+          attSheet.getRange(targetRow, 13).setValue(2);
+        }
+      }
+    }
+
+    // Update ស្ថានភាពរួម
+    attSheet.getRange(targetRow, 9).setValue(statusText);
+
+    // ៦. រក្សាទុករូបថត Selfie ចូល Google Drive
+    if (photoBase64 && photoBase64.length > 100) {
+      try {
+        var folders = DriveApp.getFoldersByName("Factory_Selfies");
+        var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("Factory_Selfies");
+        var decoded = Utilities.base64Decode(photoBase64.replace(/^data:image\/\w+;base64,/, ""));
+        var blob = Utilities.newBlob(decoded, "image/jpeg", workerId + "_" + scanActionName + "_" + hour + minute + ".jpg");
+        var file = folder.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        attSheet.getRange(targetRow, 14).setValue(file.getUrl());
+      } catch (errPhoto) {}
+    }
+
+    return jsonResponse(true, "ជោគជ័យ! " + workerName + " (" + scanActionName + ") ម៉ោង " + timeStr + " [" + statusText + "]");
+
+  } catch (err) {
+    return jsonResponse(false, "មានបញ្ហាប្រព័ន្ធ: " + err.message);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function formatMinutes(totalMins) {
+  if (totalMins <= 0) return "0 នាទី";
+  var h = Math.floor(totalMins / 60);
+  var m = totalMins % 60;
+  if (h === 0) return m + " នាទី";
+  if (m === 0) return h + " ម៉ោង";
+  return h + " ម៉ោង " + m + " នាទី";
+}
+
+function getDistanceMeters(lat1, lon1, lat2, lon2) {
+  var R = 6371000;
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLon = (lon2 - lon1) * Math.PI / 180;
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function jsonResponse(success, message) {
+  return ContentService.createTextOutput(JSON.stringify({ success: success, message: message }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== ការកំណត់ Alert សម្រាប់ HR =====
+var HR_EMAIL = "your-email@gmail.com";          // ដាក់ Email របស់ HR (បើចង់ឱ្យផ្ញើតាម Email)
+var TELEGRAM_BOT_TOKEN = "9285002034:AAHXhreUw-B6V0NI3nOrdEQZ9U_pkY-sVRY";     // កូដ Telegram Bot (បើប្រើ Telegram)
+var TELEGRAM_CHAT_ID = "8905957692";         // Chat ID របស់ HR ឬ Group Telegram
+// ===================================
+
+// មុខងារត្រួតពិនិត្យអ្នកភ្លេចស្កេនពេលព្រឹក (រត់នៅម៉ោង ៨:០០ ព្រឹក)
+function alertMorningAbsence() {
+  checkAndAlert("In_AM", "ព្រឹកចូល (ម៉ោង ៧:០០)", 4); // Column E: In_AM
+}
+
+// មុខងារត្រួតពិនិត្យអ្នកភ្លេចស្កេនពេលថ្ងៃត្រង់ (រត់នៅម៉ោង ១:០០ រសៀល)
+function alertAfternoonAbsence() {
+  checkAndAlert("In_PM", "ថ្ងៃចូលវិញ (ម៉ោង ១២:០០)", 6); // Column G: In_PM
+}
+
+function checkAndAlert(columnName, shiftName, colIndex) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var workerSheet = ss.getSheetByName("Workers");
+  var attSheet = ss.getSheetByName("Attendance");
+
+  var tz = "Asia/Phnom_Penh";
+  var todayStr = Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
+
+  var workers = workerSheet.getDataRange().getValues();
+  var attData = attSheet.getDataRange().getValues();
+
+  // ១. ប្រមូលបញ្ជីកម្មករដែលបានស្កេនថ្ងៃនេះរួចហើយ
+  var scannedWorkers = {};
+  for (var i = 1; i < attData.length; i++) {
+    var rowDate = Utilities.formatDate(new Date(attData[i][0]), tz, "yyyy-MM-dd");
+    var wId = attData[i][1] ? attData[i][1].toString().trim().toUpperCase() : "";
+    var scanTime = attData[i][colIndex]; // ពិនិត្យមើលម៉ោងស្កេនក្នុងជួរឈរនោះ
+
+    if (rowDate === todayStr && scanTime && scanTime.toString().trim() !== "") {
+      scannedWorkers[wId] = true;
+    }
+  }
+
+  // ២. ស្វែងរកអ្នកដែលមានឈ្មោះក្នុង Workers តែមិនទាន់ស្កេន
+  var missingWorkers = [];
+  for (var j = 1; j < workers.length; j++) {
+    var workerId = workers[j][0] ? workers[j][0].toString().trim().toUpperCase() : "";
+    var workerName = workers[j][1];
+    var workerLine = workers[j][2];
+
+    if (workerId !== "" && !scannedWorkers[workerId]) {
+      missingWorkers.push(workerId + " - " + workerName + " (" + workerLine + ")");
+    }
+  }
+
+  // ៣. បើមានអ្នកមិនទាន់ស្កេន ផ្ញើសារ Alert ទៅកាន់ HR ភ្លាម
+  if (missingWorkers.length > 0) {
+    var message = "⚠️ របាយការណ៍មិនទាន់ស្កេនវត្តមាន!\n" +
+                  "📌 វេន: " + shiftName + "\n" +
+                  "📅 កាលបរិច្ឆេទ: " + todayStr + "\n" +
+                  "👥 ចំនួនខកខាន: " + missingWorkers.length + " នាក់\n" +
+                  "-----------------------------------\n";
+
+    for (var k = 0; k < missingWorkers.length; k++) {
+      message += (k + 1) + ". " + missingWorkers[k] + "\n";
+    }
+
+    // ជម្រើសទី ១: ផ្ញើតាម Email
+    if (HR_EMAIL && HR_EMAIL !== "your-email@gmail.com") {
+      MailApp.sendEmail(HR_EMAIL, "⚠️ របាយការណ៍អវត្តមាន: " + shiftName, message);
+    }
+
+    // ជម្រើសទី ២: ផ្ញើតាម Telegram (បើបានរៀបចំ Token)
+    if (TELEGRAM_BOT_TOKEN !== "TELEGRAM_BOT_TOKEN" && TELEGRAM_CHAT_ID !== "TELEGRAM_CHAT_ID") {
+      sendToTelegram(message);
+    }
+  }
+}
+
+// មុខងារផ្ញើសារទៅកាន់ Telegram
+function sendToTelegram(text) {
+  var url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
+  var payload = {
+    chat_id: TELEGRAM_CHAT_ID,
+    text: text
+  };
+  UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+}
