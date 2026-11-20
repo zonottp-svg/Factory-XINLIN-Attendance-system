@@ -1,337 +1,205 @@
-// ===== កាលវិភាគម៉ោងការងាររោងចក្រ =====
-var STATIC_QR_CODE = "FACTORY_GATE_MAIN_2026"; 
-var ENABLE_GPS_CHECK = true;          
-var FACTORY_LAT = 11.536251981198479;              
-var FACTORY_LNG = 104.82075360079638;             
-var MAX_DISTANCE_METERS = 150;          
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ស្កេនវត្តមានបុគ្គលិក - Xinlin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 flex flex-col items-center justify-center font-sans">
 
-// វេនព្រឹក
-var AM_START_HOUR = 7;   var AM_START_MIN = 0;   // ៧:០០ ព្រឹកចូល
-var AM_END_HOUR = 11;    var AM_END_MIN = 0;     // ១១:០០ ព្រឹកចេញបាយ
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+    <div class="text-center mb-5">
+      <h1 class="text-2xl font-bold text-gray-800">ស្កេនវត្តមានរោងចក្រ Xinlin</h1>
+      <p class="text-xs text-gray-500 mt-1">ស្កេន QR និងផ្ទៀងផ្ទាត់មុខ (Selfie)</p>
+    </div>
 
-// វេនរសៀល
-var PM_START_HOUR = 12;  var PM_START_MIN = 0;   // ១២:០០ ថ្ងៃចូលវិញ
-var PM_END_HOUR = 16;    var PM_END_MIN = 0;     // ៤:០០ ល្ងាចចេញធម្មតា
-// ======================================
+    <!-- ប្រអប់ព័ត៌មានបុគ្គលិក -->
+    <div id="inputSection" class="space-y-3 mb-5">
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">អត្តលេខកម្មករ (Worker ID)</label>
+        <input type="text" id="workerId" placeholder="ឧ. W001" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-bold text-gray-700">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">លេខសម្ងាត់ PIN (៤ ខ្ទង់)</label>
+        <input type="password" id="pin" placeholder="****" maxlength="6" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-700">
+      </div>
 
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
+      <div class="flex gap-3 pt-1">
+        <label class="flex-1 text-center py-2 border-2 border-green-500 rounded-xl cursor-pointer has-[:checked]:bg-green-500 has-[:checked]:text-white font-bold text-green-700 transition">
+          <input type="radio" name="scanType" value="IN" checked class="hidden"> ស្កេនចូល (IN)
+        </label>
+        <label class="flex-1 text-center py-2 border-2 border-amber-500 rounded-xl cursor-pointer has-[:checked]:bg-amber-500 has-[:checked]:text-white font-bold text-amber-700 transition">
+          <input type="radio" name="scanType" value="OUT" class="hidden"> ស្កេនចេញ (OUT)
+        </label>
+      </div>
+    </div>
 
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var workerId = (data.workerId || "").toString().trim().toUpperCase();
-    var pin = (data.pin || "").toString().trim();
-    var deviceId = (data.deviceId || "").toString().trim();
-    var qrText = (data.qrText || "").toString().trim();
-    var photoBase64 = data.photoBase64 || "";
-    var scanType = data.scanType === "OUT" ? "ចេញ" : "ចូល";
-    var userLat = parseFloat(data.lat);
-    var userLng = parseFloat(data.lng);
+    <button id="btnStart" onclick="startScanner()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex justify-center items-center gap-2 mb-4">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+      បើកកាមេរ៉ាស្កេន QR
+    </button>
 
-    if (!workerId || !pin || !qrText || !deviceId) {
-      return jsonResponse(false, "ទិន្នន័យមិនគ្រប់គ្រាន់!");
+    <div id="reader-container" class="hidden overflow-hidden rounded-xl border border-gray-300">
+      <div id="reader" style="width: 100%;"></div>
+    </div>
+
+    <div id="selfieSection" class="hidden text-center">
+      <div class="relative w-64 h-64 mx-auto rounded-2xl overflow-hidden border-4 border-indigo-500 shadow-md mb-3">
+        <video id="selfieVideo" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100"></video>
+        <div id="selfieCountdown" class="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-6xl font-black">3</div>
+      </div>
+      <p class="text-sm font-semibold text-gray-700">សូមមើលចំកាមេរ៉ាដើម្បីថតរូបបញ្ជាក់មុខ...</p>
+    </div>
+
+    <canvas id="selfieCanvas" class="hidden" width="320" height="320"></canvas>
+    <div id="resultMessage" class="hidden mt-4 p-4 rounded-xl text-center text-sm font-semibold"></div>
+  </div>
+
+  <script>
+    // ⚠️ ដាក់ Web App URL របស់ Google Sheets ត្រង់នេះ ⚠️
+    const SCRIPT_URL = "ដាក់_Web_App_URL_ទីនេះ";
+
+    let deviceId = localStorage.getItem("factory_device_id");
+    if (!deviceId) {
+      deviceId = "DEV-" + Math.random().toString(36).substring(2, 9) + "-" + Date.now();
+      localStorage.setItem("factory_device_id", deviceId);
     }
 
-    // ១. ផ្ទៀងផ្ទាត់ QR Code លើក្រដាស
-    if (qrText !== STATIC_QR_CODE) {
-      return jsonResponse(false, "QR Code មិនត្រឹមត្រូវទេ!");
-    }
+    document.getElementById("workerId").value = localStorage.getItem("factory_worker_id") || "";
+    document.getElementById("pin").value = localStorage.getItem("factory_pin") || "";
 
-    // ២. ផ្ទៀងផ្ទាត់ GPS (បើបើក)
-    if (ENABLE_GPS_CHECK) {
-      if (isNaN(userLat) || isNaN(userLng)) return jsonResponse(false, "សូមបើក Location GPS លើទូរស័ព្ទ!");
-      var dist = Math.round(getDistanceMeters(userLat, userLng, FACTORY_LAT, FACTORY_LNG));
-      if (dist > MAX_DISTANCE_METERS) return jsonResponse(false, "អ្នកនៅក្រៅបរិវេណរោងចក្រ (" + dist + "m)!");
-    }
+    let html5QrCode = null;
+    let savedQrCode = "";
+    let selfieStream = null;
 
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var workerSheet = ss.getSheetByName("Workers");
-    var attSheet = ss.getSheetByName("Attendance");
-
-    // ៣. ឆែក Device Lock (១ ទូរស័ព្ទ = ១ កម្មករ)
-    var workers = workerSheet.getDataRange().getValues();
-    var foundWorkerRow = -1;
-    var workerName = "";
-    var workerLine = "";
-    var currentWorkerSavedDevice = "";
-    var deviceOwnerName = "";
-    var deviceOwnerId = "";
-
-    for (var i = 1; i < workers.length; i++) {
-      var rowId = workers[i][0].toString().trim().toUpperCase();
-      var rowName = workers[i][1];
-      var rowDevice = workers[i][5] ? workers[i][5].toString().trim() : "";
-
-      if (rowDevice !== "" && rowDevice === deviceId) {
-        deviceOwnerId = rowId;
-        deviceOwnerName = rowName;
+    function showStatus(msg, isSuccess) {
+      const box = document.getElementById("resultMessage");
+      box.classList.remove("hidden", "bg-green-100", "text-green-700", "border-green-400", "bg-red-100", "text-red-700", "border-red-400");
+      if (isSuccess) {
+        box.classList.add("bg-green-100", "text-green-700", "border", "border-green-400");
+      } else {
+        box.classList.add("bg-red-100", "text-red-700", "border", "border-red-400");
       }
+      box.innerText = msg;
+    }
 
-      if (rowId === workerId) {
-        foundWorkerRow = i + 1;
-        workerName = rowName;
-        workerLine = workers[i][2];
-        var savedPin = workers[i][4].toString().trim();
-        currentWorkerSavedDevice = rowDevice;
-
-        if (savedPin !== pin) {
-          return jsonResponse(false, "លេខសម្ងាត់ PIN មិនត្រឹមត្រូវទេ!");
-        }
+    function startScanner() {
+      const wId = document.getElementById("workerId").value.trim();
+      const pin = document.getElementById("pin").value.trim();
+      if (!wId || !pin) {
+        alert("សូមវាយបញ្ចូលអត្តលេខ និង PIN ជាមុនសិន!");
+        return;
       }
+      localStorage.setItem("factory_worker_id", wId);
+      localStorage.setItem("factory_pin", pin);
+
+      document.getElementById("btnStart").classList.add("hidden");
+      document.getElementById("reader-container").classList.remove("hidden");
+
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        onScanSuccess
+      ).catch(err => {
+        alert("មិនអាចបើកកាមេរ៉ាបានទេ: " + err);
+        document.getElementById("btnStart").classList.remove("hidden");
+        document.getElementById("reader-container").classList.add("hidden");
+      });
     }
 
-    if (foundWorkerRow === -1) return jsonResponse(false, "រកមិនឃើញអត្តលេខ " + workerId + " ទេ!");
-
-    if (deviceOwnerId !== "" && deviceOwnerId !== workerId) {
-      return jsonResponse(false, "ទូរស័ព្ទនេះជាកម្មសិទ្ធិរបស់ [" + deviceOwnerName + "] រួចហើយ! មិនអាចស្កេនជំនួសគេបានទេ។");
+    function onScanSuccess(decodedText) {
+      savedQrCode = decodedText;
+      html5QrCode.stop().then(() => {
+        document.getElementById("reader-container").classList.add("hidden");
+        document.getElementById("inputSection").classList.add("hidden");
+        startSelfieCapture();
+      });
     }
 
-    if (currentWorkerSavedDevice === "") {
-      workerSheet.getRange(foundWorkerRow, 6).setValue(deviceId);
-    } else if (currentWorkerSavedDevice !== deviceId) {
-      return jsonResponse(false, "អត្តលេខនេះត្រូវបានចងភ្ជាប់ជាមួយទូរស័ព្ទផ្សេងរួចហើយ!");
+    function startSelfieCapture() {
+      document.getElementById("selfieSection").classList.remove("hidden");
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(stream => {
+          selfieStream = stream;
+          const video = document.getElementById("selfieVideo");
+          video.srcObject = stream;
+
+          let count = 3;
+          const countdownEl = document.getElementById("selfieCountdown");
+          const timer = setInterval(() => {
+            count--;
+            if (count > 0) {
+              countdownEl.innerText = count;
+            } else {
+              clearInterval(timer);
+              countdownEl.innerText = "✓";
+              captureAndSend();
+            }
+          }, 1000);
+        })
+        .catch(err => {
+          document.getElementById("selfieSection").classList.add("hidden");
+          submitAttendance(savedQrCode, null, null, "");
+        });
     }
 
-    // ៤. ពេលវេលា និងស្វែងរកជួរទិន្នន័យប្រចាំថ្ងៃរបស់កម្មករ
-    var now = new Date();
-    var tz = "Asia/Phnom_Penh";
-    var dateStr = Utilities.formatDate(now, tz, "yyyy-MM-dd");
-    var timeStr = Utilities.formatDate(now, tz, "HH:mm:ss");
-    var hour = parseInt(Utilities.formatDate(now, tz, "H"), 10);
-    var minute = parseInt(Utilities.formatDate(now, tz, "m"), 10);
-    var nowTotalMins = hour * 60 + minute;
+    function captureAndSend() {
+      const video = document.getElementById("selfieVideo");
+      const canvas = document.getElementById("selfieCanvas");
+      const ctx = canvas.getContext("2d");
 
-    // ស្វែងរកមើលថាតើថ្ងៃនេះកម្មករនេះមានជួរក្នុង Attendance ហើយឬនៅ
-    var attData = attSheet.getDataRange().getValues();
-    var targetRow = -1;
+      ctx.drawImage(video, 0, 0, 320, 320);
+      const photoBase64 = canvas.toDataURL("image/jpeg", 0.6);
 
-    for (var r = 1; r < attData.length; r++) {
-      var rDate = Utilities.formatDate(new Date(attData[r][0]), tz, "yyyy-MM-dd");
-      var rId = attData[r][1].toString().trim().toUpperCase();
-      if (rDate === dateStr && rId === workerId) {
-        targetRow = r + 1;
-        break;
+      if (selfieStream) {
+        selfieStream.getTracks().forEach(track => track.stop());
       }
-    }
+      document.getElementById("selfieSection").classList.add("hidden");
+      document.getElementById("inputSection").classList.remove("hidden");
+      document.getElementById("btnStart").classList.remove("hidden");
 
-    // បើមិនទាន់មាន បង្កើតជួរថ្មីសម្រាប់ថ្ងៃនេះ
-    if (targetRow === -1) {
-      attSheet.appendRow([dateStr, workerId, workerName, workerLine, "", "", "", "", "ទាន់ម៉ោង", "0 នាទី", "0 នាទី", 0, 0, ""]);
-      targetRow = attSheet.getLastRow();
-    }
+      showStatus("កំពុងផ្ញើទិន្នន័យ និងរូបថត...", true);
 
-    // ៥. ពិនិត្យមើលថាតើត្រូវបញ្ចូលក្នុង Column ណា (ព្រឹកចូល/ចេញ ឬ ថ្ងៃចូល/ចេញ)
-    var scanActionName = "";
-    var statusText = "";
-    var currentStatus = attSheet.getRange(targetRow, 9).getValue();
-
-    // កំណត់ម៉ោងជាលេខនាទី
-    var amStartMins = AM_START_HOUR * 60 + AM_START_MIN; // 420 (7:00)
-    var amEndMins = AM_END_HOUR * 60 + AM_END_MIN;       // 660 (11:00)
-    var pmStartMins = PM_START_HOUR * 60 + PM_START_MIN; // 720 (12:00)
-    var pmEndMins = PM_END_HOUR * 60 + PM_END_MIN;       // 960 (16:00)
-
-    if (scanType === "ចូល") {
-      if (nowTotalMins < 690) { // មុនម៉ោង ១១:៣០ -> ព្រឹកចូល (In_AM - Column E)
-        scanActionName = "ព្រឹកចូល";
-        attSheet.getRange(targetRow, 5).setValue(timeStr);
-
-        if (nowTotalMins > amStartMins) {
-          var lateMins = nowTotalMins - amStartMins;
-          statusText = "ព្រឹកយឺត " + formatMinutes(lateMins);
-          attSheet.getRange(targetRow, 10).setValue(formatMinutes(lateMins));
-        } else {
-          statusText = "ព្រឹកទាន់ម៉ោង";
-        }
-      } else { // ក្រោយម៉ោង ១១:៣០ -> ថ្ងៃចូលវិញ (In_PM - Column G)
-        scanActionName = "ថ្ងៃចូល";
-        attSheet.getRange(targetRow, 7).setValue(timeStr);
-
-        if (nowTotalMins > pmStartMins) {
-          var latePmMins = nowTotalMins - pmStartMins;
-          statusText = "ថ្ងៃយឺត " + formatMinutes(latePmMins);
-          attSheet.getRange(targetRow, 10).setValue(formatMinutes(latePmMins));
-        } else {
-          statusText = "ថ្ងៃទាន់ម៉ោង";
-        }
-      }
-    } else {
-      // ករណី ស្កេនចេញ
-      if (nowTotalMins < 810) { // មុនម៉ោង ១:៣០ រសៀល -> ព្រឹកចេញបាយ (Out_AM - Column F)
-        scanActionName = "ព្រឹកចេញបាយ";
-        attSheet.getRange(targetRow, 6).setValue(timeStr);
-
-        if (nowTotalMins < amEndMins) {
-          var earlyAm = amEndMins - nowTotalMins;
-          statusText = "ចេញបាយមុន " + formatMinutes(earlyAm);
-          attSheet.getRange(targetRow, 11).setValue(formatMinutes(earlyAm));
-        } else {
-          statusText = "ចេញបាយទាន់ម៉ោង";
-        }
-      } else { // ក្រោយម៉ោង ១:៣០ រសៀល -> ល្ងាចចេញ (Out_PM - Column H)
-        scanActionName = "ល្ងាចចេញ";
-        attSheet.getRange(targetRow, 8).setValue(timeStr);
-
-        if (nowTotalMins < pmEndMins) {
-          // ចេញមុនម៉ោង ៤:០០
-          var earlyPm = pmEndMins - nowTotalMins;
-          statusText = "ចេញមុន " + formatMinutes(earlyPm);
-          attSheet.getRange(targetRow, 11).setValue(formatMinutes(earlyPm));
-        } else if (nowTotalMins < 1035) {
-          statusText = "ចេញធម្មតា (ទាន់ម៉ោង)";
-        } else if (nowTotalMins >= 1035 && nowTotalMins < 1125) {
-          // ថែមម៉ោងទី ១ (ម៉ោង ៤ ដល់ ៦) -> OT 1 = 2 ម៉ោង
-          statusText = "ថែមម៉ោងទី ១ (OT 1)";
-          attSheet.getRange(targetRow, 12).setValue(2);
-        } else if (nowTotalMins >= 1125 && nowTotalMins < 1245) {
-          // ថែមម៉ោងទី ២ (ម៉ោង ៦ ដល់ ៨) -> OT 1 = 2, OT 2 = 2
-          statusText = "ថែមម៉ោងទី ២ (OT 1 + OT 2)";
-          attSheet.getRange(targetRow, 12).setValue(2);
-          attSheet.getRange(targetRow, 13).setValue(2);
-        } else {
-          statusText = "ថែមម៉ោងពិសេស (យប់ជ្រៅ)";
-          attSheet.getRange(targetRow, 12).setValue(2);
-          attSheet.getRange(targetRow, 13).setValue(2);
-        }
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => submitAttendance(savedQrCode, pos.coords.latitude, pos.coords.longitude, photoBase64),
+          () => submitAttendance(savedQrCode, null, null, photoBase64),
+          { timeout: 7000 }
+        );
+      } else {
+        submitAttendance(savedQrCode, null, null, photoBase64);
       }
     }
 
-    // Update ស្ថានភាពរួម
-    attSheet.getRange(targetRow, 9).setValue(statusText);
+    function submitAttendance(qrText, lat, lng, photo) {
+      const payload = {
+        workerId: document.getElementById("workerId").value.trim(),
+        pin: document.getElementById("pin").value.trim(),
+        scanType: document.querySelector('input[name="scanType"]:checked').value,
+        deviceId: deviceId,
+        qrText: qrText,
+        photoBase64: photo,
+        lat: lat,
+        lng: lng
+      };
 
-    // ៦. រក្សាទុករូបថត Selfie ចូល Google Drive
-    if (photoBase64 && photoBase64.length > 100) {
-      try {
-        var folders = DriveApp.getFoldersByName("Factory_Selfies");
-        var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("Factory_Selfies");
-        var decoded = Utilities.base64Decode(photoBase64.replace(/^data:image\/\w+;base64,/, ""));
-        var blob = Utilities.newBlob(decoded, "image/jpeg", workerId + "_" + scanActionName + "_" + hour + minute + ".jpg");
-        var file = folder.createFile(blob);
-        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-        attSheet.getRange(targetRow, 14).setValue(file.getUrl());
-      } catch (errPhoto) {}
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        showStatus(data.message, data.success);
+      })
+      .catch(err => {
+        showStatus("មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ: " + err.message, false);
+      });
     }
-
-    return jsonResponse(true, "ជោគជ័យ! " + workerName + " (" + scanActionName + ") ម៉ោង " + timeStr + " [" + statusText + "]");
-
-  } catch (err) {
-    return jsonResponse(false, "មានបញ្ហាប្រព័ន្ធ: " + err.message);
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-function formatMinutes(totalMins) {
-  if (totalMins <= 0) return "0 នាទី";
-  var h = Math.floor(totalMins / 60);
-  var m = totalMins % 60;
-  if (h === 0) return m + " នាទី";
-  if (m === 0) return h + " ម៉ោង";
-  return h + " ម៉ោង " + m + " នាទី";
-}
-
-function getDistanceMeters(lat1, lon1, lat2, lon2) {
-  var R = 6371000;
-  var dLat = (lat2 - lat1) * Math.PI / 180;
-  var dLon = (lon2 - lon1) * Math.PI / 180;
-  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-function jsonResponse(success, message) {
-  return ContentService.createTextOutput(JSON.stringify({ success: success, message: message }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-// ===== ការកំណត់ Alert សម្រាប់ HR =====
-var HR_EMAIL = "your-email@gmail.com";          // ដាក់ Email របស់ HR (បើចង់ឱ្យផ្ញើតាម Email)
-var TELEGRAM_BOT_TOKEN = "9285002034:AAHXhreUw-B6V0NI3nOrdEQZ9U_pkY-sVRY";     // កូដ Telegram Bot (បើប្រើ Telegram)
-var TELEGRAM_CHAT_ID = "8905957692";         // Chat ID របស់ HR ឬ Group Telegram
-// ===================================
-
-// មុខងារត្រួតពិនិត្យអ្នកភ្លេចស្កេនពេលព្រឹក (រត់នៅម៉ោង ៨:០០ ព្រឹក)
-function alertMorningAbsence() {
-  checkAndAlert("In_AM", "ព្រឹកចូល (ម៉ោង ៧:០០)", 4); // Column E: In_AM
-}
-
-// មុខងារត្រួតពិនិត្យអ្នកភ្លេចស្កេនពេលថ្ងៃត្រង់ (រត់នៅម៉ោង ១:០០ រសៀល)
-function alertAfternoonAbsence() {
-  checkAndAlert("In_PM", "ថ្ងៃចូលវិញ (ម៉ោង ១២:០០)", 6); // Column G: In_PM
-}
-
-function checkAndAlert(columnName, shiftName, colIndex) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var workerSheet = ss.getSheetByName("Workers");
-  var attSheet = ss.getSheetByName("Attendance");
-
-  var tz = "Asia/Phnom_Penh";
-  var todayStr = Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
-
-  var workers = workerSheet.getDataRange().getValues();
-  var attData = attSheet.getDataRange().getValues();
-
-  // ១. ប្រមូលបញ្ជីកម្មករដែលបានស្កេនថ្ងៃនេះរួចហើយ
-  var scannedWorkers = {};
-  for (var i = 1; i < attData.length; i++) {
-    var rowDate = Utilities.formatDate(new Date(attData[i][0]), tz, "yyyy-MM-dd");
-    var wId = attData[i][1] ? attData[i][1].toString().trim().toUpperCase() : "";
-    var scanTime = attData[i][colIndex]; // ពិនិត្យមើលម៉ោងស្កេនក្នុងជួរឈរនោះ
-
-    if (rowDate === todayStr && scanTime && scanTime.toString().trim() !== "") {
-      scannedWorkers[wId] = true;
-    }
-  }
-
-  // ២. ស្វែងរកអ្នកដែលមានឈ្មោះក្នុង Workers តែមិនទាន់ស្កេន
-  var missingWorkers = [];
-  for (var j = 1; j < workers.length; j++) {
-    var workerId = workers[j][0] ? workers[j][0].toString().trim().toUpperCase() : "";
-    var workerName = workers[j][1];
-    var workerLine = workers[j][2];
-
-    if (workerId !== "" && !scannedWorkers[workerId]) {
-      missingWorkers.push(workerId + " - " + workerName + " (" + workerLine + ")");
-    }
-  }
-
-  // ៣. បើមានអ្នកមិនទាន់ស្កេន ផ្ញើសារ Alert ទៅកាន់ HR ភ្លាម
-  if (missingWorkers.length > 0) {
-    var message = "⚠️ របាយការណ៍មិនទាន់ស្កេនវត្តមាន!\n" +
-                  "📌 វេន: " + shiftName + "\n" +
-                  "📅 កាលបរិច្ឆេទ: " + todayStr + "\n" +
-                  "👥 ចំនួនខកខាន: " + missingWorkers.length + " នាក់\n" +
-                  "-----------------------------------\n";
-
-    for (var k = 0; k < missingWorkers.length; k++) {
-      message += (k + 1) + ". " + missingWorkers[k] + "\n";
-    }
-
-    // ជម្រើសទី ១: ផ្ញើតាម Email
-    if (HR_EMAIL && HR_EMAIL !== "your-email@gmail.com") {
-      MailApp.sendEmail(HR_EMAIL, "⚠️ របាយការណ៍អវត្តមាន: " + shiftName, message);
-    }
-
-    // ជម្រើសទី ២: ផ្ញើតាម Telegram (បើបានរៀបចំ Token)
-    if (TELEGRAM_BOT_TOKEN !== "TELEGRAM_BOT_TOKEN" && TELEGRAM_CHAT_ID !== "TELEGRAM_CHAT_ID") {
-      sendToTelegram(message);
-    }
-  }
-}
-
-// មុខងារផ្ញើសារទៅកាន់ Telegram
-function sendToTelegram(text) {
-  var url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
-  var payload = {
-    chat_id: TELEGRAM_CHAT_ID,
-    text: text
-  };
-  UrlFetchApp.fetch(url, {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  });
-}
+  </script>
+</body>
+</html>
