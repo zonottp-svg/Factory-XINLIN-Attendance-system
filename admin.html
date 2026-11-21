@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ផ្ទាំងគ្រប់គ្រង HR & ប្រាក់ខែ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans text-gray-800">
+
+  <!-- ផ្ទាំង Login ចូល Admin -->
+  <div id="loginSection" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
+      <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
+        🔒
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-1">ផ្ទាំងគ្រប់គ្រង HR</h2>
+      <p class="text-xs text-gray-500 mb-6">សូមវាយបញ្ចូលលេខសម្ងាត់ Admin ដើម្បីចូល</p>
+      <input type="password" id="adminPasswordInput" placeholder="លេខសម្ងាត់ Admin..." class="w-full px-4 py-3 border rounded-xl mb-4 text-center font-bold outline-none focus:ring-2 focus:ring-indigo-500">
+      <button onclick="loginAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
+        ចូលទៅកាន់ផ្ទាំងគ្រប់គ្រង
+      </button>
+    </div>
+  </div>
+
+  <!-- ផ្ទាំង Dashboard សំខាន់ -->
+  <div id="mainDashboard" class="hidden max-w-6xl mx-auto p-4 md:p-6">
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+          🏭 ផ្ទាំងគ្រប់គ្រងវត្តមាន និងប្រាក់ខែ
+        </h1>
+        <p class="text-xs text-gray-500">គ្រប់គ្រងវត្តមានប្រចាំថ្ងៃ និងគណនាប្រាក់ខែស្វ័យប្រវត្តិ</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="logoutAdmin()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition">
+          ចាកចេញ (Logout)
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="flex gap-2 border-b border-gray-200 mb-6">
+      <button onclick="switchTab('today')" id="tabBtn-today" class="tab-btn px-5 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 transition">
+        📋 វត្តមានថ្ងៃនេះ
+      </button>
+      <button onclick="switchTab('add')" id="tabBtn-add" class="tab-btn px-5 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">
+        ➕ បន្ថែមកម្មករថ្មី
+      </button>
+      <button onclick="switchTab('payroll')" id="tabBtn-payroll" class="tab-btn px-5 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">
+        💰 តារាងប្រាក់ខែ (Payroll)
+      </button>
+    </div>
+
+    <!-- TAB 1: វត្តមានថ្ងៃនេះ -->
+    <div id="tab-today" class="tab-content bg-white p-6 rounded-2xl shadow-sm">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-gray-800 text-lg">វត្តមានកម្មករថ្ងៃនេះ</h3>
+        <button onclick="loadTodayAttendance()" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold rounded-lg text-xs flex items-center gap-1 transition">
+          🔄 Refresh
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-gray-600 font-bold uppercase border-b">
+            <tr>
+              <th class="p-3">អត្តលេខ</th>
+              <th class="p-3">ឈ្មោះ</th>
+              <th class="p-3">ផ្នែក</th>
+              <th class="p-3">ព្រឹកចូល</th>
+              <th class="p-3">ព្រឹកចេញ</th>
+              <th class="p-3">ថ្ងៃចូល</th>
+              <th class="p-3">ល្ងាចចេញ</th>
+              <th class="p-3">ស្ថានភាព</th>
+              <th class="p-3">រូបថត Selfie</th>
+            </tr>
+          </thead>
+          <tbody id="todayTableBody">
+            <tr><td colspan="9" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: បន្ថែមកម្មករថ្មី -->
+    <div id="tab-add" class="tab-content hidden bg-white p-6 rounded-2xl shadow-sm max-w-lg mx-auto">
+      <h3 class="font-bold text-gray-800 text-lg mb-4 text-center">➕ បន្ថែមកម្មករថ្មីចូលប្រព័ន្ធ</h3>
+      <form onsubmit="submitNewWorker(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">អត្តលេខ (Worker ID)</label>
+          <input type="text" id="newWId" placeholder="ឧ. W003" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 uppercase font-bold text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះកម្មករ</label>
+          <input type="text" id="newWName" placeholder="ឧ. ហេង វិសាល" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">ផ្នែក / Line</label>
+            <input type="text" id="newWLine" placeholder="Line 1" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">PIN ស្កេន (៤ ខ្ទង់)</label>
+            <input type="password" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label>
+            <input type="number" id="newWSalary" value="208" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">ប្រាក់ស្នាក់នៅ/ធ្វើដំណើរ ($)</label>
+            <input type="number" id="newWAllowance" value="7" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+          </div>
+        </div>
+        <button type="submit" id="btnSubmitWorker" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">
+          រក្សាទុកកម្មករថ្មី
+        </button>
+      </form>
+    </div>
+
+    <!-- TAB 3: តារាងបើកប្រាក់ខែ -->
+    <div id="tab-payroll" class="tab-content hidden bg-white p-6 rounded-2xl shadow-sm">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h3 class="font-bold text-gray-800 text-lg">💰 តារាងប្រាក់ខែកម្មករប្រចាំខែ</h3>
+          <p class="text-xs text-gray-500">គណនាតាមច្បាប់ការងារ (រង្វាន់ទៀងទាត់ $10, OT 1 150%, OT 2 200%)</p>
+        </div>
+        <button onclick="loadPayroll()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">
+          🔄 គណនាប្រាក់ខែឡើងវិញ
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-emerald-50 text-emerald-900 font-bold border-b">
+            <tr>
+              <th class="p-3">អត្តលេខ</th>
+              <th class="p-3">ឈ្មោះ</th>
+              <th class="p-3">ផ្នែក</th>
+              <th class="p-3">ប្រាក់ខែគោល</th>
+              <th class="p-3">ថ្ងៃធ្វើការ</th>
+              <th class="p-3">អវត្តមាន</th>
+              <th class="p-3">រង្វាន់ទៀងទាត់</th>
+              <th class="p-3">ឧបត្ថម្ភ</th>
+              <th class="p-3">OT 1 (1.5x)</th>
+              <th class="p-3">OT 2 (2.0x)</th>
+              <th class="p-3">កាត់អវត្តមាន</th>
+              <th class="p-3 text-emerald-700">ប្រាក់ខែបើកជាក់ស្តែង</th>
+            </tr>
+          </thead>
+          <tbody id="payrollTableBody">
+            <tr><td colspan="12" class="p-4 text-center text-gray-400">សូមចុច "គណនាប្រាក់ខែឡើងវិញ" ដើម្បីទាញតារាង...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ ដាក់ Web App URL របស់អ្នកត្រង់នេះ ⚠️
+    const SCRIPT_URL = "YOUR_WEB_APP_URL_HERE";
+
+    let adminPassword = sessionStorage.getItem("factory_admin_pass") || "";
+
+    if (adminPassword) {
+      showDashboard();
+    }
+
+    function loginAdmin() {
+      const pass = document.getElementById("adminPasswordInput").value.trim();
+      if (!pass) return alert("សូមវាយលេខសម្ងាត់!");
+
+      adminPassword = pass;
+      sessionStorage.setItem("factory_admin_pass", pass);
+      showDashboard();
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem("factory_admin_pass");
+      location.reload();
+    }
+
+    function showDashboard() {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("mainDashboard").classList.remove("hidden");
+      loadTodayAttendance();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+      document.querySelectorAll(".tab-btn").forEach(el => {
+        el.classList.remove("border-indigo-600", "text-indigo-600");
+        el.classList.add("border-transparent", "text-gray-500");
+      });
+
+      document.getElementById("tab-" + tabId).classList.remove("hidden");
+      const activeBtn = document.getElementById("tabBtn-" + tabId);
+      activeBtn.classList.remove("border-transparent", "text-gray-500");
+      activeBtn.classList.add("border-indigo-600", "text-indigo-600");
+
+      if (tabId === "payroll") loadPayroll();
+    }
+
+    // ទាញទិន្នន័យវត្តមានថ្ងៃនេះ
+    function loadTodayAttendance() {
+      const tbody = document.getElementById("todayTableBody");
+      tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "GET_TODAY_ATTENDANCE", adminPass: adminPassword })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          alert(data.message);
+          logoutAdmin();
+          return;
+        }
+
+        if (data.records.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-gray-400">ថ្ងៃនេះមិនទាន់មានកម្មករស្កេននៅឡើយទេ។</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.records.map(r => `
+          <tr class="border-b hover:bg-slate-50">
+            <td class="p-3 font-bold">${r.workerId}</td>
+            <td class="p-3">${r.name}</td>
+            <td class="p-3">${r.line}</td>
+            <td class="p-3 font-semibold text-indigo-600">${r.inAM}</td>
+            <td class="p-3">${r.outAM}</td>
+            <td class="p-3 font-semibold text-indigo-600">${r.inPM}</td>
+            <td class="p-3">${r.outPM}</td>
+            <td class="p-3"><span class="px-2 py-1 bg-slate-100 rounded-md font-semibold text-[11px]">${r.status}</span></td>
+            <td class="p-3">${r.photo ? `<a href="${r.photo}" target="_blank" class="text-indigo-600 hover:underline font-bold">📷 មើលរូប</a>` : '-'}</td>
+          </tr>
+        `).join("");
+      })
+      .catch(err => alert("កំហុស: " + err.message));
+    }
+
+    // បន្ថែមកម្មករថ្មី
+    function submitNewWorker(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitWorker");
+      btn.innerText = "កំពុងរក្សាទុក...";
+      btn.disabled = true;
+
+      const payload = {
+        action: "ADD_WORKER",
+        adminPass: adminPassword,
+        wId: document.getElementById("newWId").value,
+        wName: document.getElementById("newWName").value,
+        wLine: document.getElementById("newWLine").value,
+        wPin: document.getElementById("newWPin").value,
+        wSalary: document.getElementById("newWSalary").value,
+        wAllowance: document.getElementById("newWAllowance").value
+      };
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.innerText = "រក្សាទុកកម្មករថ្មី";
+        btn.disabled = false;
+        alert(data.message);
+        if (data.success) {
+          e.target.reset();
+          switchTab('today');
+        }
+      })
+      .catch(err => {
+        btn.innerText = "រក្សាទុកកម្មករថ្មី";
+        btn.disabled = false;
+        alert("កំហុស: " + err.message);
+      });
+    }
+
+    // ទាញតារាងប្រាក់ខែ
+    function loadPayroll() {
+      const tbody = document.getElementById("payrollTableBody");
+      tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-400">កំពុងគណនាប្រាក់ខែ...</td></tr>`;
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "GET_PAYROLL", adminPass: adminPassword })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) return alert(data.message);
+
+        tbody.innerHTML = data.payroll.map(p => `
+          <tr class="border-b hover:bg-emerald-50">
+            <td class="p-3 font-bold">${p.id}</td>
+            <td class="p-3 font-semibold">${p.name}</td>
+            <td class="p-3">${p.line}</td>
+            <td class="p-3">${p.base}</td>
+            <td class="p-3">${p.workDays}</td>
+            <td class="p-3 text-rose-600 font-bold">${p.absent}</td>
+            <td class="p-3">${p.bonus}</td>
+            <td class="p-3">${p.allowance}</td>
+            <td class="p-3">${p.ot1}</td>
+            <td class="p-3">${p.ot2}</td>
+            <td class="p-3 text-rose-600">${p.deduct}</td>
+            <td class="p-3 text-emerald-600 font-black text-sm">${p.net}</td>
+          </tr>
+        `).join("");
+      })
+      .catch(err => alert("កំហុស: " + err.message));
+    }
+  </script>
+</body>
+</html>
