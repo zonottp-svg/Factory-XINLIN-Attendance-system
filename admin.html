@@ -8,7 +8,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-gray-800">
 
-  <!-- ផ្ទាំង Login (ប្រើ text + mask ដើម្បីកុំឱ្យ Chrome ច្រឡំ) -->
+  <!-- ផ្ទាំង Login -->
   <div id="loginSection" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
       <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-bold">🏢</div>
@@ -118,14 +118,18 @@
               <input type="text" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label>
-              <input type="number" id="newWSalary" value="208" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+              <label class="block text-[11px] font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label>
+              <input type="number" id="newWSalary" value="208" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">ឧបត្ថម្ភ ($)</label>
-              <input type="number" id="newWAllowance" value="7" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+              <label class="block text-[11px] font-semibold text-gray-600 mb-1">ឧបត្ថម្ភ ($)</label>
+              <input type="number" id="newWAllowance" value="0" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-1">ទៀងទាត់ ($)</label>
+              <input type="number" id="newWBonus" value="10" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
             </div>
           </div>
           <button type="submit" id="btnSubmitWorker" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">រក្សាទុកបុគ្គលិកថ្មី</button>
@@ -145,7 +149,7 @@
             <thead class="bg-slate-50 text-gray-600 font-bold border-b">
               <tr>
                 <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-                <th class="p-3">PIN</th><th class="p-3">ទូរស័ព្ទ</th><th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">គ្រប់គ្រង</th>
+                <th class="p-3">PIN</th><th class="p-3">ទូរស័ព្ទ</th><th class="p-3">ប្រាក់ខែ / ឧបត្ថម្ភ / ទៀងទាត់</th><th class="p-3">គ្រប់គ្រង</th>
               </tr>
             </thead>
             <tbody id="workersTableBody"></tbody>
@@ -154,7 +158,7 @@
       </div>
     </div>
 
-    <!-- TAB 3 (ថ្មី!): ឆែកប្រវត្តិបុគ្គលិកម្នាក់ៗ ពីថ្ងៃទី ១ ដល់ចុងខែ -->
+    <!-- TAB 3: ឆែកប្រវត្តិបុគ្គលិកម្នាក់ៗ ពីថ្ងៃទី ១ ដល់ចុងខែ -->
     <div id="tab-workerDetail" class="tab-content hidden space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-sm">
         <h3 class="font-bold text-gray-800 text-lg mb-3">📅 ឆែកប្រវត្តិវត្តមានបុគ្គលិកម្នាក់ៗ (ថ្ងៃទី ១ - ចុងខែ)</h3>
@@ -172,7 +176,6 @@
       </div>
 
       <div id="workerDetailResult" class="hidden space-y-4">
-        <!-- សង្ខេបព័ត៌មានបុគ្គលិក -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-indigo-100 flex flex-wrap justify-between items-center gap-4">
           <div>
             <p class="text-xs text-gray-500">បុគ្គលិក៖ <b id="wdLine" class="text-indigo-600"></b></p>
@@ -187,7 +190,6 @@
           </div>
         </div>
 
-        <!-- តារាងថ្ងៃទី ១ ដល់ ចុងខែ -->
         <div class="bg-white p-6 rounded-2xl shadow-sm overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-gray-700 font-bold border-b">
@@ -231,7 +233,7 @@
       <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
         <div>
           <h3 class="font-bold text-gray-800 text-lg">💰 តារាងប្រាក់ខែកម្មករប្រចាំខែ</h3>
-          <p class="text-xs text-gray-500">គណនាតាមច្បាប់ការងារ (រង្វាន់ទៀងទាត់ $10, OT 1 150%, OT 2 200%)</p>
+          <p class="text-xs text-gray-500">គណនាប្រាក់តាមថ្ងៃជាក់ស្តែង (ពាក់កណ្តាលខែ) និងពេញខែនៅចុងខែ (≥ ២៤ ថ្ងៃ)</p>
         </div>
         <div class="flex gap-2 w-full sm:w-auto">
           <input type="text" id="searchPayroll" oninput="renderPayrollTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 flex-1">
@@ -244,7 +246,7 @@
             <tr>
               <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
               <th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ថ្ងៃធ្វើការ</th><th class="p-3">អវត្តមាន</th>
-              <th class="p-3">រង្វាន់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th>
+              <th class="p-3">ទៀងទាត់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th>
               <th class="p-3">OT 2</th><th class="p-3">កាត់អវត្តមាន</th><th class="p-3 text-emerald-700">ប្រាក់ខែបើកសរុប</th>
             </tr>
           </thead>
@@ -362,7 +364,7 @@
           <td class="p-3 font-bold">${w.id}</td><td class="p-3 font-semibold">${w.name}</td><td class="p-3">${w.line}</td>
           <td class="p-3 font-mono">${w.pin}</td>
           <td class="p-3">${w.deviceId ? `<span class="text-emerald-600 font-bold">🔒 ចងភ្ជាប់ហើយ</span>` : `<span class="text-gray-400">ទំនេរ</span>`}</td>
-          <td class="p-3">$${w.salary} (+$${w.allowance})</td>
+          <td class="p-3 font-semibold">$${w.salary} <span class="text-gray-400 text-[10px]">(ឧ:$${w.allowance} | ទ:$${w.bonus})</span></td>
           <td class="p-3 flex flex-wrap gap-1">
             <button onclick="openWorkerDetail('${w.id}')" class="px-2 py-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded font-bold text-[11px]">📅 ប្រវត្តិខែ</button>
             ${w.deviceId ? `<button onclick="resetDevice('${w.id}')" class="px-2 py-1 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded font-bold text-[11px]">🔓 Reset</button>` : ''}
@@ -379,7 +381,8 @@
         body: JSON.stringify({
           action: "ADD_WORKER", adminPass: adminPassword, wId: document.getElementById("newWId").value,
           wName: document.getElementById("newWName").value, wLine: document.getElementById("newWLine").value,
-          wPin: document.getElementById("newWPin").value, wSalary: document.getElementById("newWSalary").value, wAllowance: document.getElementById("newWAllowance").value
+          wPin: document.getElementById("newWPin").value, wSalary: document.getElementById("newWSalary").value,
+          wAllowance: document.getElementById("newWAllowance").value, wBonus: document.getElementById("newWBonus").value
         })
       }).then(res => res.json()).then(data => { btn.innerText = "រក្សាទុកបុគ្គលិកថ្មី"; btn.disabled = false; alert(data.message); if (data.success) { e.target.reset(); loadWorkers(); } });
     }
@@ -421,12 +424,9 @@
         document.getElementById("wdOT").innerText = (data.stats.ot1 + data.stats.ot2) + "h";
 
         const badgeMap = {
-          OK: "bg-emerald-100 text-emerald-700",
-          WARN: "bg-amber-100 text-amber-800",
-          MISSING: "bg-orange-100 text-orange-800",
-          ABSENT: "bg-rose-100 text-rose-700",
-          SUNDAY: "bg-sky-50 text-sky-600",
-          UPCOMING: "bg-gray-100 text-gray-400"
+          OK: "bg-emerald-100 text-emerald-700", WARN: "bg-amber-100 text-amber-800",
+          MISSING: "bg-orange-100 text-orange-800", ABSENT: "bg-rose-100 text-rose-700",
+          SUNDAY: "bg-sky-50 text-sky-600", UPCOMING: "bg-gray-100 text-gray-400"
         };
 
         document.getElementById("workerDetailTableBody").innerHTML = data.days.map(d => {
