@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ផ្ទាំងគ្រប់គ្រង HR & ប្រាក់ខែ</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- បណ្ណាល័យបង្កើត និងអាន File Excel (.xlsx) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-gray-800">
 
@@ -24,7 +26,7 @@
     <header class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm mb-6 gap-4">
       <div>
         <h1 class="text-2xl font-black text-gray-900 flex items-center gap-2">🏭 ផ្ទាំងគ្រប់គ្រងវត្តមាន និងប្រាក់ខែ</h1>
-        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក វត្តមានប្រចាំថ្ងៃ ប្រវត្តិម្នាក់ៗពីថ្ងៃ១-ចុងខែ និងប្រាក់ខែ</p>
+        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក វត្តមានប្រចាំថ្ងៃ ទាញយក Excel & បញ្ចូលឈ្មោះតាម Excel</p>
       </div>
       <button onclick="logoutAdmin()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition">ចាកចេញ (Logout)</button>
     </header>
@@ -64,8 +66,9 @@
           <h3 class="font-bold text-gray-800 text-lg">📋 តារាងវត្តមានប្រចាំថ្ងៃ</h3>
           <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <input type="date" id="filterDate" onchange="loadDashboard()" class="px-3 py-2 border rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500">
-            <input type="text" id="searchToday" oninput="filterTodayTables()" placeholder="🔍 ស្វែងរក អត្តលេខ, ឈ្មោះ, ផ្នែក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 flex-1 md:w-56">
+            <input type="text" id="searchToday" oninput="filterTodayTables()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 flex-1 md:w-48">
             <button onclick="loadDashboard()" class="px-3 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold rounded-xl text-xs transition">🔄 Refresh</button>
+            <button onclick="exportTodayExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">📥 Excel</button>
           </div>
         </div>
         <div class="overflow-x-auto">
@@ -95,53 +98,76 @@
       </div>
     </div>
 
-    <!-- TAB 2: បញ្ជីបុគ្គលិក -->
+    <!-- TAB 2: បញ្ជីបុគ្គលិក + Import/Export Excel -->
     <div id="tab-workers" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm h-fit">
-        <h3 class="font-bold text-gray-800 text-lg mb-4">➕ បន្ថែមបុគ្គលិកថ្មី</h3>
-        <form onsubmit="submitNewWorker(event)" class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">អត្តលេខ (Worker ID)</label>
-            <input type="text" id="newWId" placeholder="ឧ. XL00100" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 uppercase font-bold text-sm">
+      <div class="space-y-6">
+        <!-- ទម្រង់បញ្ចូលម្តងម្នាក់ -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm">
+          <h3 class="font-bold text-gray-800 text-lg mb-4">➕ បន្ថែមបុគ្គលិកម្តងម្នាក់</h3>
+          <form onsubmit="submitNewWorker(event)" class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">អត្តលេខ (Worker ID)</label>
+              <input type="text" id="newWId" placeholder="ឧ. XL00100" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 uppercase font-bold text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះបុគ្គលិក</label>
+              <input type="text" id="newWName" placeholder="ឧ. សុខ ដារ៉ា" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">ផ្នែក / Line</label>
+                <input type="text" id="newWLine" placeholder="Line 1" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">PIN ស្កេន (៤ ខ្ទង់)</label>
+                <input type="text" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label>
+                <input type="number" id="newWSalary" value="208" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-1">ឧបត្ថម្ភ ($)</label>
+                <input type="number" id="newWAllowance" value="0" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-1">ទៀងទាត់ ($)</label>
+                <input type="number" id="newWBonus" value="10" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+              </div>
+            </div>
+            <button type="submit" id="btnSubmitWorker" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">រក្សាទុកបុគ្គលិកថ្មី</button>
+          </form>
+        </div>
+
+        <!-- ប្រអប់ Import/Template Excel (NEW!) -->
+        <div class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-200">
+          <h3 class="font-bold text-emerald-900 text-base mb-2">📂 បញ្ចូលឈ្មោះច្រើនតាម Excel (រហ័ស)</h3>
+          <p class="text-[11px] text-emerald-700 mb-4 leading-relaxed">
+            ១. ទាញយកគំរូ Excel ទៅបំពេញឈ្មោះកម្មករ (១០ ឬ ៦០០ នាក់)<br>
+            ២. ចុច Upload File Excel នោះចូលប្រព័ន្ធម្ដងទាំងអស់!
+          </p>
+          <div class="space-y-2.5">
+            <button onclick="downloadWorkerTemplate()" class="w-full bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+              📥 ទាញយកគំរូ Excel (Template)
+            </button>
+            <label class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 cursor-pointer">
+              <span id="importBtnLabel">📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល</span>
+              <input type="file" accept=".xlsx,.xls,.csv" onchange="importWorkersExcel(event)" class="hidden">
+            </label>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះបុគ្គលិក</label>
-            <input type="text" id="newWName" placeholder="ឧ. សុខ ដារ៉ា" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">ផ្នែក / Line</label>
-              <input type="text" id="newWLine" placeholder="Line 1" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">PIN ស្កេន (៤ ខ្ទង់)</label>
-              <input type="text" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-            </div>
-          </div>
-          <div class="grid grid-cols-3 gap-2">
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label>
-              <input type="number" id="newWSalary" value="208" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-600 mb-1">ឧបត្ថម្ភ ($)</label>
-              <input type="number" id="newWAllowance" value="0" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-600 mb-1">ទៀងទាត់ ($)</label>
-              <input type="number" id="newWBonus" value="10" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-            </div>
-          </div>
-          <button type="submit" id="btnSubmitWorker" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">រក្សាទុកបុគ្គលិកថ្មី</button>
-        </form>
+        </div>
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-sm lg:col-span-2">
+      <!-- តារាងបុគ្គលិកទាំងអស់ -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm lg:col-span-2 h-fit">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
           <h3 class="font-bold text-gray-800 text-lg">👥 បញ្ជីឈ្មោះបុគ្គលិកទាំងអស់</h3>
           <div class="flex gap-2 w-full sm:w-auto">
             <input type="text" id="searchWorkers" oninput="renderWorkersTable()" placeholder="🔍 ស្វែងរកបុគ្គលិក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 flex-1">
             <button onclick="loadWorkers()" class="px-3 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-xl text-xs">🔄</button>
+            <button onclick="exportWorkersExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs">📥 Excel</button>
           </div>
         </div>
         <div class="overflow-x-auto">
@@ -172,6 +198,7 @@
             <input type="month" id="detailMonth" class="px-3 py-2 border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500">
           </div>
           <button onclick="loadWorkerMonth()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow transition">🔍 ឆែកមើលទិន្នន័យ</button>
+          <button id="btnExportDetail" onclick="exportWorkerDetailExcel()" class="hidden px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow transition">📥 ទាញយក Excel</button>
         </div>
       </div>
 
@@ -209,9 +236,10 @@
     <div id="tab-monthly" class="tab-content hidden bg-white p-6 rounded-2xl shadow-sm">
       <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
         <h3 class="font-bold text-gray-800 text-lg">📊 របាយការណ៍បូកសរុបវត្តមានប្រចាំខែ</h3>
-        <div class="flex gap-2 w-full sm:w-auto">
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
           <input type="text" id="searchMonthly" oninput="renderMonthlyTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 flex-1">
           <button onclick="loadMonthlyReport()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition">🔄 បូកសរុបឡើងវិញ</button>
+          <button onclick="exportMonthlyExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">📥 ទាញយក Excel</button>
         </div>
       </div>
       <div class="overflow-x-auto">
@@ -235,9 +263,10 @@
           <h3 class="font-bold text-gray-800 text-lg">💰 តារាងប្រាក់ខែកម្មករប្រចាំខែ</h3>
           <p class="text-xs text-gray-500">គណនាប្រាក់តាមថ្ងៃជាក់ស្តែង (ពាក់កណ្តាលខែ) និងពេញខែនៅចុងខែ (≥ ២៤ ថ្ងៃ)</p>
         </div>
-        <div class="flex gap-2 w-full sm:w-auto">
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
           <input type="text" id="searchPayroll" oninput="renderPayrollTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 flex-1">
           <button onclick="loadPayroll()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">🔄 គណនាប្រាក់ខែឡើងវិញ</button>
+          <button onclick="exportPayrollExcel()" class="px-4 py-2 bg-slate-800 hover:bg-black text-white font-bold rounded-xl text-xs transition">📥 ទាញយក Excel</button>
         </div>
       </div>
       <div class="overflow-x-auto">
@@ -262,6 +291,7 @@
 
     let adminPassword = sessionStorage.getItem("factory_admin_pass") || "";
     let allTodayRecords = [], allAbsentWorkers = [], allWorkers = [], allMonthlyReport = [], allPayroll = [];
+    let currentWorkerDetail = null;
 
     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Phnom_Penh' });
     document.getElementById("filterDate").value = todayStr;
@@ -306,7 +336,132 @@
       loadWorkerMonth();
     }
 
-    // ១. វត្តមានប្រចាំថ្ងៃ
+    // ===== មុខងារ EXCEL EXPORT & IMPORT =====
+    function exportAoaToExcel(aoa, fileName, sheetName) {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName || "Sheet1");
+      XLSX.writeFile(wb, fileName);
+    }
+
+    function downloadWorkerTemplate() {
+      const templateData = [
+        ["ID (អត្តលេខ)", "Name (ឈ្មោះ)", "Line (ផ្នែក)", "Shift (វេន)", "PIN (លេខសម្ងាត់ ៤ខ្ទង់)", "Base_Salary (ប្រាក់ខែគោល)", "Allowance (ឧបត្ថម្ភ)", "Bonus (ប្រាក់ទៀងទាត់)"],
+        ["XL00001", "សុខ ដារ៉ា", "Line 1", "ព្រឹក", "1234", 208, 0, 10],
+        ["XL00002", "ចាន់ ស្រីមុំ", "Line 2", "ព្រឹក", "5678", 208, 7, 10]
+      ];
+      exportAoaToExcel(templateData, "Worker_Import_Template.xlsx", "Template");
+    }
+
+    function importWorkersExcel(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+
+          const workersToUpload = [];
+          for (let i = 1; i < rows.length; i++) {
+            const r = rows[i];
+            const wId = (r[0] || "").toString().trim().toUpperCase();
+            const wName = (r[1] || "").toString().trim();
+            if (!wId || !wName) continue;
+            workersToUpload.push({
+              id: wId, name: wName,
+              line: (r[2] || "Line 1").toString().trim(),
+              shift: (r[3] || "ព្រឹក").toString().trim(),
+              pin: (r[4] || "1234").toString().trim(),
+              salary: r[5] === "" ? 208 : Number(r[5]),
+              allowance: r[6] === "" ? 0 : Number(r[6]),
+              bonus: r[7] === "" ? 10 : Number(r[7])
+            });
+          }
+
+          if (workersToUpload.length === 0) {
+            alert("រកមិនឃើញទិន្នន័យបុគ្គលិកក្នុង File Excel ទេ!");
+            e.target.value = ""; return;
+          }
+
+          if (!confirm("រកឃើញបុគ្គលិកចំនួន " + workersToUpload.length + " នាក់! តើអ្នកចង់បញ្ចូលទៅក្នុងប្រព័ន្ធឥឡូវនេះទេ?")) {
+            e.target.value = ""; return;
+          }
+
+          const btnLabel = document.getElementById("importBtnLabel");
+          btnLabel.innerText = "⏳ កំពុងបញ្ចូល " + workersToUpload.length + " នាក់...";
+
+          fetch(SCRIPT_URL, {
+            method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "BULK_ADD_WORKERS", adminPass: adminPassword, workers: workersToUpload })
+          })
+          .then(res => res.json())
+          .then(resData => {
+            btnLabel.innerText = "📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល";
+            e.target.value = "";
+            alert(resData.message);
+            if (resData.success) loadWorkers();
+          })
+          .catch(err => {
+            btnLabel.innerText = "📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល";
+            e.target.value = ""; alert("កំហុស៖ " + err.message);
+          });
+        } catch (err) {
+          alert("មិនអាចអាន File Excel នេះបានទេ: " + err.message);
+          e.target.value = "";
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportTodayExcel() {
+      const dateVal = document.getElementById("filterDate").value;
+      const wb = XLSX.utils.book_new();
+      const presentRows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "ស្ថានភាព", "រូបថត"]];
+      allTodayRecords.forEach(r => presentRows.push([r.workerId, r.name, r.line, r.inAM, r.outAM, r.inPM, r.outPM, r.status, r.photo]));
+      const absentRows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ស្ថានភាព"]];
+      allAbsentWorkers.forEach(w => absentRows.push([w.workerId, w.name, w.line, "អវត្តមាន / មិនទាន់ស្កេន"]));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(presentRows), "Present");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(absentRows), "Absent");
+      XLSX.writeFile(wb, "Attendance_" + dateVal + ".xlsx");
+    }
+
+    function exportWorkersExcel() {
+      if (allWorkers.length === 0) return alert("គ្មានទិន្នន័យសម្រាប់ទាញយកទេ!");
+      const rows = [["ID", "Name", "Line", "Shift", "PIN", "Base_Salary", "Allowance", "Bonus"]];
+      allWorkers.forEach(w => rows.push([w.id, w.name, w.line, w.shift, w.pin, Number(w.salary), Number(w.allowance), Number(w.bonus)]));
+      exportAoaToExcel(rows, "Workers_List.xlsx", "Workers");
+    }
+
+    function exportWorkerDetailExcel() {
+      if (!currentWorkerDetail) return;
+      const d = currentWorkerDetail;
+      const rows = [
+        ["អត្តលេខ:", d.worker.id, "ឈ្មោះ:", d.worker.name, "ផ្នែក:", d.worker.line, "ខែ:", d.month],
+        [],
+        ["ថ្ងៃទី", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "OT 1 (h)", "OT 2 (h)", "ស្ថានភាព & កំណត់សម្គាល់"]
+      ];
+      d.days.forEach(day => rows.push([day.dayLabel, day.inAM, day.outAM, day.inPM, day.outPM, day.ot1, day.ot2, day.note]));
+      exportAoaToExcel(rows, d.worker.id + "_" + d.month + ".xlsx", "Worker_History");
+    }
+
+    function exportMonthlyExcel() {
+      if (allMonthlyReport.length === 0) return alert("គ្មានទិន្នន័យសម្រាប់ទាញយកទេ!");
+      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ថ្ងៃធ្វើការ", "ថ្ងៃអវត្តមាន", "យឺត (ដង)", "ចេញមុន (ដង)", "OT 1 (h)", "OT 2 (h)", "OT សរុប (h)"]];
+      allMonthlyReport.forEach(r => rows.push([r.id, r.name, r.line, r.workDays, r.absentDays, r.lateCount, r.earlyCount, r.ot1, r.ot2, r.totalOt]));
+      exportAoaToExcel(rows, "Monthly_Report_" + todayStr.substring(0, 7) + ".xlsx", "Monthly_Report");
+    }
+
+    function exportPayrollExcel() {
+      if (allPayroll.length === 0) return alert("គ្មានទិន្នន័យសម្រាប់ទាញយកទេ!");
+      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ប្រាក់ខែគោល", "ថ្ងៃធ្វើការ", "អវត្តមាន", "ទៀងទាត់", "ឧបត្ថម្ភ", "OT 1", "OT 2", "កាត់អវត្តមាន", "ប្រាក់ខែបើកសរុប"]];
+      allPayroll.forEach(p => rows.push([p.id, p.name, p.line, p.base, p.workDays, p.absent, p.bonus, p.allowance, p.ot1, p.ot2, p.deduct, p.net]));
+      exportAoaToExcel(rows, "Monthly_Payroll_" + todayStr.substring(0, 7) + ".xlsx", "Payroll");
+    }
+
+    // ===== ១. វត្តមានប្រចាំថ្ងៃ =====
     function loadDashboard() {
       const dateVal = document.getElementById("filterDate").value;
       document.getElementById("todayTableBody").innerHTML = `<tr><td colspan="9" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
@@ -347,7 +502,7 @@
         </tr>`).join("") : `<tr><td colspan="4" class="p-4 text-center text-emerald-600 font-bold">🎉 មកធ្វើការគ្រប់គ្នា ១០០%!</td></tr>`;
     }
 
-    // ២. បញ្ជីបុគ្គលិក
+    // ===== ២. បញ្ជីបុគ្គលិក =====
     function loadWorkers() {
       document.getElementById("workersTableBody").innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
       fetch(SCRIPT_URL, {
@@ -399,13 +554,14 @@
         .then(res => res.json()).then(data => { alert(data.message); loadWorkers(); });
     }
 
-    // ៣. ឆែកប្រវត្តិបុគ្គលិកម្នាក់ៗ ពីថ្ងៃ ១ ដល់ ចុងខែ
+    // ===== ៣. ឆែកប្រវត្តិបុគ្គលិកម្នាក់ៗ =====
     function loadWorkerMonth() {
       const wId = document.getElementById("detailWorkerId").value.trim();
       const month = document.getElementById("detailMonth").value;
       if (!wId) return alert("សូមវាយបញ្ចូលអត្តលេខកម្មករ!");
 
       document.getElementById("workerDetailResult").classList.remove("hidden");
+      document.getElementById("btnExportDetail").classList.add("hidden");
       document.getElementById("workerDetailTableBody").innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-400">កំពុងទាញប្រវត្តិពីថ្ងៃទី ១ ដល់ចុងខែ...</td></tr>`;
 
       fetch(SCRIPT_URL, {
@@ -415,6 +571,9 @@
       .then(res => res.json())
       .then(data => {
         if (!data.success) { alert(data.message); document.getElementById("workerDetailResult").classList.add("hidden"); return; }
+        currentWorkerDetail = data;
+        document.getElementById("btnExportDetail").classList.remove("hidden");
+
         document.getElementById("wdName").innerText = data.worker.id + " - " + data.worker.name;
         document.getElementById("wdLine").innerText = data.worker.line + " (ខែ " + data.month + ")";
         document.getElementById("wdWorked").innerText = data.stats.worked + " ថ្ងៃ";
@@ -445,7 +604,7 @@
       });
     }
 
-    // ៤. បូកសរុបប្រចាំខែ
+    // ===== ៤. បូកសរុបប្រចាំខែ =====
     function loadMonthlyReport() {
       document.getElementById("monthlyTableBody").innerHTML = `<tr><td colspan="10" class="p-4 text-center text-gray-400">កំពុងបូកសរុប...</td></tr>`;
       fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_MONTHLY_REPORT", adminPass: adminPassword }) })
@@ -465,7 +624,7 @@
         </tr>`).join("");
     }
 
-    // ៥. តារាងប្រាក់ខែ
+    // ===== ៥. តារាងប្រាក់ខែ =====
     function loadPayroll() {
       document.getElementById("payrollTableBody").innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-400">កំពុងគណនាប្រាក់ខែ...</td></tr>`;
       fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_PAYROLL", adminPass: adminPassword }) })
