@@ -6,6 +6,14 @@
   <title>ផ្ទាំងគ្រប់គ្រង HR & ប្រាក់ខែ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #nssfPrintArea, #nssfPrintArea * { visibility: visible; }
+      #nssfPrintArea { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 15px; }
+      .no-print { display: none !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-gray-800">
 
@@ -25,7 +33,7 @@
     <header class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm mb-6 gap-4">
       <div>
         <h1 class="text-2xl font-black text-gray-900 flex items-center gap-2">🏭 ផ្ទាំងគ្រប់គ្រងវត្តមាន និងប្រាក់ខែ</h1>
-        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក ថ្ងៃអាទិត្យ ថ្ងៃបុណ្យជាតិ ប.ស.ស (NSSF) & Excel</p>
+        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក ថ្ងៃអាទិត្យ ថ្ងៃបុណ្យជាតិ ប.ស.ស (NSSF Form 2.01) & Excel</p>
       </div>
       <button onclick="logoutAdmin()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition">ចាកចេញ (Logout)</button>
     </header>
@@ -43,22 +51,10 @@
     <!-- TAB 1: វត្តមានប្រចាំថ្ងៃ -->
     <div id="tab-today" class="tab-content space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500">
-          <p class="text-xs text-gray-500 font-semibold">👥 បុគ្គលិកសរុប</p>
-          <p id="statTotal" class="text-2xl font-black text-gray-900 mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-500">
-          <p class="text-xs text-gray-500 font-semibold">✅ មកធ្វើការ</p>
-          <p id="statPresent" class="text-2xl font-black text-emerald-600 mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-rose-500">
-          <p class="text-xs text-gray-500 font-semibold">❌ អវត្តមាន / មិនទាន់ស្កេន</p>
-          <p id="statAbsent" class="text-2xl font-black text-rose-600 mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500">
-          <p class="text-xs text-gray-500 font-semibold">⏰ មកយឺត</p>
-          <p id="statLate" class="text-2xl font-black text-amber-600 mt-1">0</p>
-        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500"><p class="text-xs text-gray-500 font-semibold">👥 បុគ្គលិកសរុប</p><p id="statTotal" class="text-2xl font-black text-gray-900 mt-1">0</p></div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-500"><p class="text-xs text-gray-500 font-semibold">✅ មកធ្វើការ</p><p id="statPresent" class="text-2xl font-black text-emerald-600 mt-1">0</p></div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-rose-500"><p class="text-xs text-gray-500 font-semibold">❌ អវត្តមាន / មិនទាន់ស្កេន</p><p id="statAbsent" class="text-2xl font-black text-rose-600 mt-1">0</p></div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500"><p class="text-xs text-gray-500 font-semibold">⏰ មកយឺត</p><p id="statLate" class="text-2xl font-black text-amber-600 mt-1">0</p></div>
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow-sm">
@@ -74,11 +70,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-gray-600 font-bold border-b">
-              <tr>
-                <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-                <th class="p-3">ព្រឹកចូល</th><th class="p-3">ព្រឹកចេញ</th><th class="p-3">ថ្ងៃចូល</th><th class="p-3">ល្ងាចចេញ</th>
-                <th class="p-3">ស្ថានភាព</th><th class="p-3">រូបថត</th>
-              </tr>
+              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">ព្រឹកចូល</th><th class="p-3">ព្រឹកចេញ</th><th class="p-3">ថ្ងៃចូល</th><th class="p-3">ល្ងាចចេញ</th><th class="p-3">ស្ថានភាព</th><th class="p-3">រូបថត</th></tr>
             </thead>
             <tbody id="todayTableBody"></tbody>
           </table>
@@ -104,37 +96,19 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm">
           <h3 class="font-bold text-gray-800 text-lg mb-4">➕ បន្ថែមបុគ្គលិកម្តងម្នាក់</h3>
           <form onsubmit="submitNewWorker(event)" class="space-y-3">
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">អត្តលេខ (Worker ID)</label>
-              <input type="text" id="newWId" placeholder="ឧ. XL00100" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 uppercase font-bold text-sm">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះបុគ្គលិក</label>
-              <input type="text" id="newWName" placeholder="ឧ. សុខ ដារ៉ា" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
-            </div>
             <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">ផ្នែក / Line</label>
-                <input type="text" id="newWLine" placeholder="Line 1" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">PIN ស្កេន (៤ ខ្ទង់)</label>
-                <input type="text" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-              </div>
+              <div><label class="block text-xs font-semibold text-gray-600 mb-1">អត្តលេខ (ID)</label><input type="text" id="newWId" placeholder="ឧ. XL00100" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 uppercase font-bold text-sm"></div>
+              <div><label class="block text-xs font-semibold text-gray-600 mb-1">លេខបណ្ណ ប.ស.ស</label><input type="text" id="newWNssfNo" placeholder="(បើមាន)" class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"></div>
+            </div>
+            <div><label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះបុគ្គលិក</label><input type="text" id="newWName" placeholder="ឧ. សុខ ដារ៉ា" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm"></div>
+            <div class="grid grid-cols-2 gap-3">
+              <div><label class="block text-xs font-semibold text-gray-600 mb-1">ផ្នែក / Line</label><input type="text" id="newWLine" placeholder="Line 1" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm"></div>
+              <div><label class="block text-xs font-semibold text-gray-600 mb-1">PIN ស្កេន (៤ ខ្ទង់)</label><input type="text" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
             </div>
             <div class="grid grid-cols-3 gap-2">
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label>
-                <input type="number" id="newWSalary" value="208" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">ឧបត្ថម្ភ ($)</label>
-                <input type="number" id="newWAllowance" value="0" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-600 mb-1">ទៀងទាត់ ($)</label>
-                <input type="number" id="newWBonus" value="10" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
-              </div>
+              <div><label class="block text-[11px] font-semibold text-gray-600 mb-1">ប្រាក់ខែគោល ($)</label><input type="number" id="newWSalary" value="208" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
+              <div><label class="block text-[11px] font-semibold text-gray-600 mb-1">ឧបត្ថម្ភ ($)</label><input type="number" id="newWAllowance" value="0" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
+              <div><label class="block text-[11px] font-semibold text-gray-600 mb-1">ទៀងទាត់ ($)</label><input type="number" id="newWBonus" value="10" required class="w-full px-2.5 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
             </div>
             <button type="submit" id="btnSubmitWorker" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">រក្សាទុកបុគ្គលិកថ្មី</button>
           </form>
@@ -142,10 +116,7 @@
 
         <div class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-200">
           <h3 class="font-bold text-emerald-900 text-base mb-2">📂 បញ្ចូលឈ្មោះច្រើនតាម Excel (រហ័ស)</h3>
-          <p class="text-[11px] text-emerald-700 mb-4 leading-relaxed">
-            ១. ទាញយកគំរូ Excel ទៅបំពេញឈ្មោះកម្មករ (១០ ឬ ៦០០ នាក់)<br>
-            ២. ចុច Upload File Excel នោះចូលប្រព័ន្ធម្ដងទាំងអស់!
-          </p>
+          <p class="text-[11px] text-emerald-700 mb-4 leading-relaxed">១. ទាញយកគំរូ Excel ទៅបំពេញឈ្មោះកម្មករ (១០ ឬ ៦០០ នាក់)<br>២. ចុច Upload File Excel នោះចូលប្រព័ន្ធម្ដងទាំងអស់!</p>
           <div class="space-y-2.5">
             <button onclick="downloadWorkerTemplate()" class="w-full bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">📥 ទាញយកគំរូ Excel (Template)</button>
             <label class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 cursor-pointer">
@@ -168,10 +139,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-gray-600 font-bold border-b">
-              <tr>
-                <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-                <th class="p-3">PIN</th><th class="p-3">ទូរស័ព្ទ</th><th class="p-3">ប្រាក់ខែ / ឧបត្ថម្ភ / ទៀងទាត់</th><th class="p-3">គ្រប់គ្រង</th>
-              </tr>
+              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">លេខ ប.ស.ស</th><th class="p-3">ទូរស័ព្ទ</th><th class="p-3">ប្រាក់ខែ / ឧ / ទ</th><th class="p-3">គ្រប់គ្រង</th></tr>
             </thead>
             <tbody id="workersTableBody"></tbody>
           </table>
@@ -184,14 +152,8 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm">
         <h3 class="font-bold text-gray-800 text-lg mb-3">📅 ឆែកប្រវត្តិវត្តមានបុគ្គលិកម្នាក់ៗ (ថ្ងៃទី ១ - ចុងខែ)</h3>
         <div class="flex flex-wrap items-end gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">វាយអត្តលេខកម្មករ (ID)</label>
-            <input type="text" id="detailWorkerId" placeholder="ឧ. XL00099" class="px-3 py-2 border rounded-xl text-sm font-bold uppercase outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">ជ្រើសរើសខែ</label>
-            <input type="month" id="detailMonth" class="px-3 py-2 border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
+          <div><label class="block text-xs font-semibold text-gray-600 mb-1">វាយអត្តលេខកម្មករ (ID)</label><input type="text" id="detailWorkerId" placeholder="ឧ. XL00099" class="px-3 py-2 border rounded-xl text-sm font-bold uppercase outline-none focus:ring-2 focus:ring-indigo-500"></div>
+          <div><label class="block text-xs font-semibold text-gray-600 mb-1">ជ្រើសរើសខែ</label><input type="month" id="detailMonth" class="px-3 py-2 border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500"></div>
           <button onclick="loadWorkerMonth()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow transition">🔍 ឆែកមើលទិន្នន័យ</button>
           <button id="btnExportDetail" onclick="exportWorkerDetailExcel()" class="hidden px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow transition">📥 ទាញយក Excel</button>
         </div>
@@ -199,10 +161,7 @@
 
       <div id="workerDetailResult" class="hidden space-y-4">
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-indigo-100 flex flex-wrap justify-between items-center gap-4">
-          <div>
-            <p class="text-xs text-gray-500">បុគ្គលិក៖ <b id="wdLine" class="text-indigo-600"></b></p>
-            <h4 id="wdName" class="text-xl font-black text-gray-900"></h4>
-          </div>
+          <div><p class="text-xs text-gray-500">បុគ្គលិក៖ <b id="wdLine" class="text-indigo-600"></b></p><h4 id="wdName" class="text-xl font-black text-gray-900"></h4></div>
           <div class="flex flex-wrap gap-2.5 text-center">
             <div class="bg-emerald-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-emerald-700 font-bold">ធ្វើការធម្មតា</p><p id="wdWorked" class="text-lg font-black text-emerald-700">0</p></div>
             <div class="bg-rose-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-rose-700 font-bold">អវត្តមាន</p><p id="wdAbsent" class="text-lg font-black text-rose-700">0</p></div>
@@ -216,11 +175,7 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-gray-700 font-bold border-b">
-              <tr>
-                <th class="p-3">ថ្ងៃទី (Day)</th><th class="p-3">ព្រឹកចូល</th><th class="p-3">ព្រឹកចេញ</th>
-                <th class="p-3">ថ្ងៃចូល</th><th class="p-3">ល្ងាចចេញ</th><th class="p-3">OT1 / OT2</th>
-                <th class="p-3">ស្ថានភាព & កំណត់សម្គាល់</th><th class="p-3">រូបថត</th>
-              </tr>
+              <tr><th class="p-3">ថ្ងៃទី (Day)</th><th class="p-3">ព្រឹកចូល</th><th class="p-3">ព្រឹកចេញ</th><th class="p-3">ថ្ងៃចូល</th><th class="p-3">ល្ងាចចេញ</th><th class="p-3">OT1 / OT2</th><th class="p-3">ស្ថានភាព & កំណត់សម្គាល់</th><th class="p-3">រូបថត</th></tr>
             </thead>
             <tbody id="workerDetailTableBody"></tbody>
           </table>
@@ -241,12 +196,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead class="bg-indigo-50 text-indigo-900 font-bold border-b">
-            <tr>
-              <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-              <th class="p-3">ថ្ងៃធ្វើការ</th><th class="p-3">អវត្តមាន</th><th class="p-3">យឺត</th>
-              <th class="p-3">ចេញមុន</th><th class="p-3">OT 1</th><th class="p-3">OT 2</th>
-              <th class="p-3 text-sky-700">អាទិត្យ (h)</th><th class="p-3 text-purple-700">បុណ្យ (h)</th><th class="p-3">សរុប (h)</th>
-            </tr>
+            <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">ថ្ងៃធ្វើការ</th><th class="p-3">អវត្តមាន</th><th class="p-3">យឺត</th><th class="p-3">ចេញមុន</th><th class="p-3">OT 1</th><th class="p-3">OT 2</th><th class="p-3 text-sky-700">អាទិត្យ (h)</th><th class="p-3 text-purple-700">បុណ្យ (h)</th><th class="p-3">សរុប (h)</th></tr>
           </thead>
           <tbody id="monthlyTableBody"></tbody>
         </table>
@@ -255,20 +205,10 @@
 
     <!-- TAB 5: តារាងប្រាក់ខែ & ប.ស.ស -->
     <div id="tab-payroll" class="tab-content hidden space-y-5">
-      <!-- កាតសរុបប្រាក់ខែ និង ប.ស.ស -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-500">
-          <p class="text-xs text-gray-500 font-semibold">💵 ប្រាក់ខែបើកជូនកម្មករសរុប (Net Pay)</p>
-          <p id="payTotalNet" class="text-2xl font-black text-emerald-600 mt-1">$0.00</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500">
-          <p class="text-xs text-gray-500 font-semibold">🏥 ប.ស.ស. កាត់ពីកម្មករ (2% សោធន)</p>
-          <p id="payTotalNssfEmp" class="text-2xl font-black text-amber-600 mt-1">$0.00</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500">
-          <p class="text-xs text-gray-500 font-semibold">🏭 ប.ស.ស. បន្ថែមដោយរោងចក្រ (5.4%)</p>
-          <p id="payTotalNssfComp" class="text-2xl font-black text-indigo-600 mt-1">$0.00</p>
-        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-500"><p class="text-xs text-gray-500 font-semibold">💵 ប្រាក់ខែបើកជូនកម្មករសរុប (Net Pay)</p><p id="payTotalNet" class="text-2xl font-black text-emerald-600 mt-1">$0.00</p></div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500"><p class="text-xs text-gray-500 font-semibold">🏥 ប.ស.ស. កាត់ពីកម្មករ (2% សោធន)</p><p id="payTotalNssfEmp" class="text-2xl font-black text-amber-600 mt-1">$0.00</p></div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500"><p class="text-xs text-gray-500 font-semibold">🏭 ប.ស.ស. បន្ថែមដោយរោងចក្រ (5.4%)</p><p id="payTotalNssfComp" class="text-2xl font-black text-indigo-600 mt-1">$0.00</p></div>
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow-sm">
@@ -279,21 +219,15 @@
           </div>
           <div class="flex flex-wrap gap-2 w-full sm:w-auto">
             <input type="text" id="searchPayroll" oninput="renderPayrollTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 flex-1">
-            <button onclick="loadPayroll()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">🔄 គណនាឡើងវិញ</button>
-            <button onclick="exportPayrollExcel()" class="px-4 py-2 bg-slate-800 hover:bg-black text-white font-bold rounded-xl text-xs transition">📥 ទាញយក Excel</button>
+            <button onclick="loadPayroll()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">🔄 គណនាឡើងវិញ</button>
+            <button onclick="openNssfForm()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition">🏥 ទម្រង់ដាក់បង់ ប.ស.ស.</button>
+            <button onclick="exportPayrollExcel()" class="px-3 py-2 bg-slate-800 hover:bg-black text-white font-bold rounded-xl text-xs transition">📥 Excel ប្រាក់ខែ</button>
           </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-emerald-50 text-emerald-900 font-bold border-b">
-              <tr>
-                <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-                <th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ធ្វើការ</th><th class="p-3">អវត្តមាន</th>
-                <th class="p-3">ទៀងទាត់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th>
-                <th class="p-3">OT 2</th><th class="p-3 text-sky-700">អាទិត្យ</th><th class="p-3 text-purple-700">បុណ្យ</th>
-                <th class="p-3">កាត់ឈប់</th><th class="p-3 text-amber-700">ប.ស.ស (2%)</th>
-                <th class="p-3 text-emerald-700">បើកសុទ្ធ</th><th class="p-3 text-indigo-700">រោងចក្រ (5.4%)</th>
-              </tr>
+              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ធ្វើការ</th><th class="p-3">អវត្តមាន</th><th class="p-3">ទៀងទាត់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th><th class="p-3">OT 2</th><th class="p-3 text-sky-700">អាទិត្យ</th><th class="p-3 text-purple-700">បុណ្យ</th><th class="p-3">កាត់ឈប់</th><th class="p-3 text-amber-700">ប.ស.ស (2%)</th><th class="p-3 text-emerald-700">បើកសុទ្ធ</th><th class="p-3 text-indigo-700">រោងចក្រ (5.4%)</th></tr>
             </thead>
             <tbody id="payrollTableBody"></tbody>
           </table>
@@ -307,29 +241,66 @@
         <h3 class="font-bold text-gray-800 text-lg mb-3">🎌 បន្ថែមថ្ងៃបុណ្យជាតិ</h3>
         <p class="text-xs text-gray-500 mb-4">បន្ថែមថ្ងៃបុណ្យដើម្បីឱ្យប្រព័ន្ធដឹងថាជាថ្ងៃឈប់សម្រាកមានប្រាក់ឈ្នួល (មិនកាត់អវត្តមាន ហើយបើមកធ្វើការបាន +100%)</p>
         <form onsubmit="submitHoliday(event)" class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">កាលបរិច្ឆេទ</label>
-            <input type="date" id="newHDate" required class="w-full px-3 py-2 border rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះថ្ងៃបុណ្យ</label>
-            <input type="text" id="newHName" placeholder="ឧ. បុណ្យអុំទូក / ចូលឆ្នាំខ្មែរ" required class="w-full px-3 py-2 border rounded-xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
+          <div><label class="block text-xs font-semibold text-gray-600 mb-1">កាលបរិច្ឆេទ</label><input type="date" id="newHDate" required class="w-full px-3 py-2 border rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500"></div>
+          <div><label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះថ្ងៃបុណ្យ</label><input type="text" id="newHName" placeholder="ឧ. បុណ្យអុំទូក / ចូលឆ្នាំខ្មែរ" required class="w-full px-3 py-2 border rounded-xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500"></div>
           <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">➕ បន្ថែមថ្ងៃបុណ្យ</button>
         </form>
       </div>
-
       <div class="bg-white p-6 rounded-2xl shadow-sm md:col-span-2">
         <div class="flex justify-between items-center mb-4">
           <h3 class="font-bold text-gray-800 text-lg">📅 បញ្ជីថ្ងៃបុណ្យជាតិក្នុងប្រព័ន្ធ</h3>
           <button onclick="loadHolidays()" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-xs">🔄 Refresh</button>
         </div>
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50 text-gray-600 font-bold border-b">
-            <tr><th class="p-3">កាលបរិច្ឆេទ</th><th class="p-3">ឈ្មោះថ្ងៃបុណ្យ</th><th class="p-3">លុប</th></tr>
-          </thead>
+          <thead class="bg-slate-50 text-gray-600 font-bold border-b"><tr><th class="p-3">កាលបរិច្ឆេទ</th><th class="p-3">ឈ្មោះថ្ងៃបុណ្យ</th><th class="p-3">លុប</th></tr></thead>
           <tbody id="holidaysTableBody"></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ទម្រង់ដាក់បង់ ប.ស.ស. (NSSF FORM 2.01 & KHR EXCEL) -->
+  <div id="nssfFormModal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-80 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-6 my-8">
+      <!-- ក្បាល Modal (មិនព្រីន) -->
+      <div class="no-print flex flex-col sm:flex-row justify-between items-center gap-3 pb-4 border-b mb-4">
+        <div class="flex items-center gap-3">
+          <label class="text-xs font-bold text-gray-700">អត្រាប្តូរប្រាក់ ប.ស.ស (១$ = រៀល)៖</label>
+          <input type="number" id="nssfExchangeRate" value="4000" oninput="renderNssfSlip()" class="w-24 px-3 py-1.5 border rounded-xl font-bold text-sm text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="flex gap-2">
+          <button onclick="exportNssfExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs">📥 Excel ប.ស.ស (KHR)</button>
+          <button onclick="window.print()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs">🖨️ ព្រីនលិខិតបង់ប្រាក់</button>
+          <button onclick="closeNssfForm()" class="px-3 py-2 bg-rose-100 text-rose-700 font-bold rounded-xl text-xs">✖ បិទ</button>
+        </div>
+      </div>
+
+      <!-- ផ្ទៃសម្រាប់ព្រីន (ទម្រង់សង្ខេបបង់ប្រាក់ ប.ស.ស) -->
+      <div id="nssfPrintArea" class="space-y-4">
+        <div class="text-center border-b-2 border-slate-800 pb-3">
+          <p class="text-xs font-bold text-gray-500">ព្រះរាជាណាចក្រកម្ពុជា • ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+          <h2 class="text-xl font-extrabold text-gray-900 mt-1">បង្កាន់ដៃសង្ខេបបង់ភាគទាន ប.ស.ស. ប្រចាំខែ (ទម្រង់ ២.០១)</h2>
+          <p id="nssfMonthSubtitle" class="text-xs font-bold text-indigo-700 mt-1"></p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div class="bg-slate-50 p-3 rounded-xl border"><p class="text-gray-500">សមាជិកត្រូវបង់</p><p id="nssfSumCount" class="text-base font-extrabold text-gray-900">0 នាក់</p></div>
+          <div class="bg-slate-50 p-3 rounded-xl border"><p class="text-gray-500">ប្រាក់ឈ្នួលជាប់ភាគទានសរុប</p><p id="nssfSumWage" class="text-base font-extrabold text-gray-900">0 ៛</p></div>
+          <div class="bg-amber-50 p-3 rounded-xl border border-amber-200"><p class="text-amber-700">កាត់ពីកម្មករសរុប (2%)</p><p id="nssfSumEmp" class="text-base font-extrabold text-amber-700">0 ៛</p></div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-300"><p class="text-emerald-700 font-bold">ទឹកប្រាក់សរុបត្រូវបង់ធនាគារ (7.4%)</p><p id="nssfSumGrand" class="text-lg font-black text-emerald-700">0 ៛</p></div>
+        </div>
+
+        <!-- តារាងបំបែកតាមរបបទាំង ៣ -->
+        <table class="w-full text-left text-xs border border-gray-300">
+          <thead class="bg-slate-100 font-bold border-b border-gray-300">
+            <tr><th class="p-2.5 border-r">ប្រភេទរបបសន្តិសុខសង្គម</th><th class="p-2.5 border-r text-center">អត្រា (%)</th><th class="p-2.5 border-r">ភាគីទទួលបន្ទុក</th><th class="p-2.5 text-right">ទឹកប្រាក់ត្រូវបង់ (រៀល)</th></tr>
+          </thead>
+          <tbody id="nssfSummaryBreakdown"></tbody>
+        </table>
+
+        <p class="text-[11px] text-gray-500 italic">
+          * សម្គាល់៖ ប្រាក់ឈ្នួលជាប់ភាគទានត្រូវបានកំណត់ចន្លោះ ៦០០,០០០៛ ដល់ ១,៥០០,០០០៛ (ប្រកាស ២៣៤/២៦)។ ផុតកំណត់បង់ត្រឹមថ្ងៃទី ១៥ នៃខែបន្ទាប់។
+        </p>
       </div>
     </div>
   </div>
@@ -384,7 +355,70 @@
       loadWorkerMonth();
     }
 
-    // ===== EXCEL =====
+    // ===== NSSF FORM 2.01 (KHR) =====
+    function openNssfForm() {
+      if (allPayroll.length === 0) return alert("សូមរង់ចាំតារាងប្រាក់ខែគណនារួចសិន!");
+      document.getElementById("nssfFormModal").classList.remove("hidden");
+      renderNssfSlip();
+    }
+
+    function closeNssfForm() { document.getElementById("nssfFormModal").classList.add("hidden"); }
+
+    function getNssfRowsData() {
+      const rate = parseFloat(document.getElementById("nssfExchangeRate").value) || 4000;
+      const list = [];
+      let sumWage = 0, sum08 = 0, sum26 = 0, sumEmp2 = 0, sumComp2 = 0;
+
+      allPayroll.forEach((p, idx) => {
+        const grossUsd = Number(p.grossUsd) || 0;
+        if (grossUsd <= 0) return;
+        const grossKhr = Math.round(grossUsd * rate);
+        const contribKhr = Math.max(600000, Math.min(1500000, grossKhr));
+        const r08 = Math.round(contribKhr * 0.008);
+        const r26 = Math.round(contribKhr * 0.026);
+        const pComp = Math.round(contribKhr * 0.02);
+        const pEmp = Math.round(contribKhr * 0.02);
+        const total = r08 + r26 + pComp + pEmp;
+
+        sumWage += contribKhr; sum08 += r08; sum26 += r26; sumComp2 += pComp; sumEmp2 += pEmp;
+        list.push({ no: list.length + 1, id: p.id, nssfNo: p.nssfNo || "-", name: p.name, grossUsd, contribKhr, r08, r26, pComp, pEmp, total });
+      });
+
+      return { rate, list, sumWage, sum08, sum26, sumComp2, sumEmp2, grandTotal: sum08 + sum26 + sumComp2 + sumEmp2 };
+    }
+
+    function renderNssfSlip() {
+      const res = getNssfRowsData();
+      const fmt = n => n.toLocaleString("en-US") + " ៛";
+      document.getElementById("nssfMonthSubtitle").innerText = "ប្រចាំខែ៖ " + todayStr.substring(0, 7) + " | អត្រាប្តូរប្រាក់៖ ១$ = " + res.rate.toLocaleString("en-US") + " ៛";
+      document.getElementById("nssfSumCount").innerText = res.list.length + " នាក់";
+      document.getElementById("nssfSumWage").innerText = fmt(res.sumWage);
+      document.getElementById("nssfSumEmp").innerText = fmt(res.sumEmp2);
+      document.getElementById("nssfSumGrand").innerText = fmt(res.grandTotal) + " (~$" + (res.grandTotal / res.rate).toFixed(2) + ")";
+
+      document.getElementById("nssfSummaryBreakdown").innerHTML = `
+        <tr class="border-b"><td class="p-2.5 border-r font-semibold">១. របបហានិភ័យការងារ (Occupational Risk)</td><td class="p-2.5 border-r text-center font-bold">0.8%</td><td class="p-2.5 border-r">រោងចក្រ (និយោជក)</td><td class="p-2.5 text-right font-bold">${fmt(res.sum08)}</td></tr>
+        <tr class="border-b"><td class="p-2.5 border-r font-semibold">២. របបថែទាំសុខភាព (Health Care)</td><td class="p-2.5 border-r text-center font-bold">2.6%</td><td class="p-2.5 border-r">រោងចក្រ (និយោជក)</td><td class="p-2.5 text-right font-bold">${fmt(res.sum26)}</td></tr>
+        <tr class="border-b"><td class="p-2.5 border-r font-semibold">៣. របបប្រាក់សោធន - ភាគីរោងចក្រ (Pension Employer)</td><td class="p-2.5 border-r text-center font-bold">2.0%</td><td class="p-2.5 border-r">រោងចក្រ (និយោជក)</td><td class="p-2.5 text-right font-bold">${fmt(res.sumComp2)}</td></tr>
+        <tr class="border-b bg-amber-50/60"><td class="p-2.5 border-r font-semibold">៤. របបប្រាក់សោធន - ភាគីកម្មករ (Pension Employee)</td><td class="p-2.5 border-r text-center font-bold">2.0%</td><td class="p-2.5 border-r text-amber-800 font-bold">កាត់ពីកម្មករ</td><td class="p-2.5 text-right font-bold text-amber-800">${fmt(res.sumEmp2)}</td></tr>
+        <tr class="bg-emerald-50 font-black text-emerald-900"><td class="p-3 border-r" colspan="3">សរុបទឹកប្រាក់ត្រូវបង់ទៅ ប.ស.ស. (Total Contribution = 7.4%)</td><td class="p-3 text-right text-sm">${fmt(res.grandTotal)}</td></tr>
+      `;
+    }
+
+    function exportNssfExcel() {
+      const res = getNssfRowsData();
+      if (res.list.length === 0) return alert("គ្មានទិន្នន័យបុគ្គលិកមានប្រាក់ខែសម្រាប់ដាក់ ប.ស.ស. ទេ!");
+      const rows = [
+        ["របាយការណ៍ប្រាក់ឈ្នួលជាប់ភាគទាន ប.ស.ស. (NSSF E-Form)", "ខែ:", todayStr.substring(0, 7), "អត្រាប្តូរប្រាក់:", res.rate],
+        [],
+        ["ល.រ", "អត្តលេខរោងចក្រ", "លេខបណ្ណ ប.ស.ស.", "គោត្តនាម និងនាម", "ប្រាក់ឈ្នួលសរុប (USD)", "ប្រាក់ឈ្នួលជាប់ភាគទាន (រៀល)", "ហានិភ័យ 0.8% (រៀល)", "សុខភាព 2.6% (រៀល)", "សោធនរោងចក្រ 2% (រៀល)", "សោធនកម្មករ 2% (រៀល)", "ភាគទានសរុប 7.4% (រៀល)"]
+      ];
+      res.list.forEach(item => rows.push([item.no, item.id, item.nssfNo, item.name, item.grossUsd, item.contribKhr, item.r08, item.r26, item.pComp, item.pEmp, item.total]));
+      rows.push(["", "", "", "សរុបរួម", "", res.sumWage, res.sum08, res.sum26, res.sumComp2, res.sumEmp2, res.grandTotal]);
+      exportAoaToExcel(rows, "NSSF_Report_KHR_" + todayStr.substring(0, 7) + ".xlsx", "NSSF_EForm");
+    }
+
+    // ===== EXCEL EXPORT & IMPORT =====
     function exportAoaToExcel(aoa, fileName, sheetName) {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), sheetName || "Sheet1");
@@ -393,9 +427,9 @@
 
     function downloadWorkerTemplate() {
       exportAoaToExcel([
-        ["ID (អត្តលេខ)", "Name (ឈ្មោះ)", "Line (ផ្នែក)", "Shift (វេន)", "PIN (លេខសម្ងាត់ ៤ខ្ទង់)", "Base_Salary (ប្រាក់ខែគោល)", "Allowance (ឧបត្ថម្ភ)", "Bonus (ប្រាក់ទៀងទាត់)"],
-        ["XL00001", "សុខ ដារ៉ា", "Line 1", "ព្រឹក", "1234", 208, 0, 10],
-        ["XL00002", "ចាន់ ស្រីមុំ", "Line 2", "ព្រឹក", "5678", 208, 7, 10]
+        ["ID (អត្តលេខ)", "Name (ឈ្មោះ)", "Line (ផ្នែក)", "Shift (វេន)", "PIN (៤ខ្ទង់)", "Base_Salary ($)", "Allowance ($)", "Bonus ($)", "NSSF_No (លេខបណ្ណ ប.ស.ស)"],
+        ["XL00001", "សុខ ដារ៉ា", "Line 1", "ព្រឹក", "1234", 208, 0, 10, "001234567"],
+        ["XL00002", "ចាន់ ស្រីមុំ", "Line 2", "ព្រឹក", "5678", 208, 7, 10, ""]
       ], "Worker_Import_Template.xlsx", "Template");
     }
 
@@ -415,7 +449,7 @@
             workersToUpload.push({
               id: wId, name: wName, line: (r[2] || "Line 1").toString().trim(), shift: (r[3] || "ព្រឹក").toString().trim(),
               pin: (r[4] || "1234").toString().trim(), salary: r[5] === "" ? 208 : Number(r[5]),
-              allowance: r[6] === "" ? 0 : Number(r[6]), bonus: r[7] === "" ? 10 : Number(r[7])
+              allowance: r[6] === "" ? 0 : Number(r[6]), bonus: r[7] === "" ? 10 : Number(r[7]), nssfNo: (r[8] || "").toString().trim()
             });
           }
           if (workersToUpload.length === 0) { alert("រកមិនឃើញទិន្នន័យបុគ្គលិកក្នុង Excel ទេ!"); e.target.value = ""; return; }
@@ -447,8 +481,8 @@
 
     function exportWorkersExcel() {
       if (allWorkers.length === 0) return alert("គ្មានទិន្នន័យ!");
-      const rows = [["ID", "Name", "Line", "Shift", "PIN", "Base_Salary", "Allowance", "Bonus"]];
-      allWorkers.forEach(w => rows.push([w.id, w.name, w.line, w.shift, w.pin, Number(w.salary), Number(w.allowance), Number(w.bonus)]));
+      const rows = [["ID", "Name", "Line", "Shift", "PIN", "Base_Salary", "Allowance", "Bonus", "NSSF_No"]];
+      allWorkers.forEach(w => rows.push([w.id, w.name, w.line, w.shift, w.pin, Number(w.salary), Number(w.allowance), Number(w.bonus), w.nssfNo]));
       exportAoaToExcel(rows, "Workers_List.xlsx", "Workers");
     }
 
@@ -524,12 +558,12 @@
       document.getElementById("workersTableBody").innerHTML = filtered.length ? filtered.map(w => `
         <tr class="border-b hover:bg-slate-50">
           <td class="p-3 font-bold">${w.id}</td><td class="p-3 font-semibold">${w.name}</td><td class="p-3">${w.line}</td>
-          <td class="p-3 font-mono">${w.pin}</td>
-          <td class="p-3">${w.deviceId ? `<span class="text-emerald-600 font-bold">🔒 ចងភ្ជាប់ហើយ</span>` : `<span class="text-gray-400">ទំនេរ</span>`}</td>
+          <td class="p-3 font-mono text-[11px]">${w.nssfNo || '<span class="text-gray-300">-</span>'}</td>
+          <td class="p-3">${w.deviceId ? `<span class="text-emerald-600 font-bold">🔒 ភ្ជាប់ហើយ</span>` : `<span class="text-gray-400">ទំនេរ</span>`}</td>
           <td class="p-3 font-semibold">$${w.salary} <span class="text-gray-400 text-[10px]">(ឧ:$${w.allowance} | ទ:$${w.bonus})</span></td>
           <td class="p-3 flex flex-wrap gap-1">
-            <button onclick="openWorkerDetail('${w.id}')" class="px-2 py-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded font-bold text-[11px]">📅 ប្រវត្តិខែ</button>
-            ${w.deviceId ? `<button onclick="resetDevice('${w.id}')" class="px-2 py-1 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded font-bold text-[11px]">🔓 Reset</button>` : ''}
+            <button onclick="openWorkerDetail('${w.id}')" class="px-2 py-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded font-bold text-[11px]">📅 ប្រវត្តិ</button>
+            ${w.deviceId ? `<button onclick="resetDevice('${w.id}')" class="px-2 py-1 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded font-bold text-[11px]">🔓</button>` : ''}
             <button onclick="deleteWorker('${w.id}')" class="px-2 py-1 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded font-bold text-[11px]">🗑️</button>
           </td>
         </tr>`).join("") : `<tr><td colspan="7" class="p-4 text-center text-gray-400">រកមិនឃើញបុគ្គលិកទេ។</td></tr>`;
@@ -542,6 +576,7 @@
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           action: "ADD_WORKER", adminPass: adminPassword, wId: document.getElementById("newWId").value,
+          wNssfNo: document.getElementById("newWNssfNo").value,
           wName: document.getElementById("newWName").value, wLine: document.getElementById("newWLine").value,
           wPin: document.getElementById("newWPin").value, wSalary: document.getElementById("newWSalary").value,
           wAllowance: document.getElementById("newWAllowance").value, wBonus: document.getElementById("newWBonus").value
