@@ -82,7 +82,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-rose-50 text-rose-800 font-bold border-b">
-              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">ស្ថានភាព</th></tr>
+              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">លេខទូរស័ព្ទ (ចុចតេ)</th><th class="p-3">ស្ថានភាព</th></tr>
             </thead>
             <tbody id="absentTableBody"></tbody>
           </table>
@@ -101,6 +101,10 @@
               <div><label class="block text-xs font-semibold text-gray-600 mb-1">លេខបណ្ណ ប.ស.ស</label><input type="text" id="newWNssfNo" placeholder="(បើមាន)" class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"></div>
             </div>
             <div><label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះបុគ្គលិក</label><input type="text" id="newWName" placeholder="ឧ. សុខ ដារ៉ា" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm"></div>
+            <div class="grid grid-cols-2 gap-3">
+              <div><label class="block text-xs font-semibold text-gray-600 mb-1">លេខទូរស័ព្ទ</label><input type="tel" id="newWPhone" placeholder="012345678" class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm"></div>
+              <div><label class="block text-xs font-semibold text-gray-600 mb-1">ថ្ងៃចូលធ្វើការ</label><input type="date" id="newWJoinDate" class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-xs"></div>
+            </div>
             <div class="grid grid-cols-2 gap-3">
               <div><label class="block text-xs font-semibold text-gray-600 mb-1">ផ្នែក / Line</label><input type="text" id="newWLine" placeholder="Line 1" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm"></div>
               <div><label class="block text-xs font-semibold text-gray-600 mb-1">PIN ស្កេន (៤ ខ្ទង់)</label><input type="text" id="newWPin" placeholder="1234" maxlength="4" required class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
@@ -139,7 +143,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 text-gray-600 font-bold border-b">
-              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th><th class="p-3">លេខ ប.ស.ស</th><th class="p-3">ទូរស័ព្ទ</th><th class="p-3">ប្រាក់ខែ / ឧ / ទ</th><th class="p-3">គ្រប់គ្រង</th></tr>
+              <tr><th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ & ផ្នែក</th><th class="p-3">ទូរស័ព្ទ</th><th class="p-3">ថ្ងៃចូលធ្វើការ</th><th class="p-3">ប.ស.ស & ឧបករណ៍</th><th class="p-3">ប្រាក់ខែ</th><th class="p-3">គ្រប់គ្រង</th></tr>
             </thead>
             <tbody id="workersTableBody"></tbody>
           </table>
@@ -161,7 +165,10 @@
 
       <div id="workerDetailResult" class="hidden space-y-4">
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-indigo-100 flex flex-wrap justify-between items-center gap-4">
-          <div><p class="text-xs text-gray-500">បុគ្គលិក៖ <b id="wdLine" class="text-indigo-600"></b></p><h4 id="wdName" class="text-xl font-black text-gray-900"></h4></div>
+          <div>
+            <p class="text-xs text-gray-500">ផ្នែក៖ <b id="wdLine" class="text-indigo-600"></b> • ថ្ងៃចូល៖ <b id="wdJoinDate" class="text-gray-700"></b> • 📞 <b id="wdPhone" class="text-emerald-700"></b></p>
+            <h4 id="wdName" class="text-xl font-black text-gray-900 mt-0.5"></h4>
+          </div>
           <div class="flex flex-wrap gap-2.5 text-center">
             <div class="bg-emerald-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-emerald-700 font-bold">ធ្វើការធម្មតា</p><p id="wdWorked" class="text-lg font-black text-emerald-700">0</p></div>
             <div class="bg-rose-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-rose-700 font-bold">អវត្តមាន</p><p id="wdAbsent" class="text-lg font-black text-rose-700">0</p></div>
@@ -262,7 +269,6 @@
   <!-- MODAL: ទម្រង់ដាក់បង់ ប.ស.ស. (NSSF FORM 2.01 & KHR EXCEL) -->
   <div id="nssfFormModal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-80 z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-6 my-8">
-      <!-- ក្បាល Modal (មិនព្រីន) -->
       <div class="no-print flex flex-col sm:flex-row justify-between items-center gap-3 pb-4 border-b mb-4">
         <div class="flex items-center gap-3">
           <label class="text-xs font-bold text-gray-700">អត្រាប្តូរប្រាក់ ប.ស.ស (១$ = រៀល)៖</label>
@@ -275,7 +281,6 @@
         </div>
       </div>
 
-      <!-- ផ្ទៃសម្រាប់ព្រីន (ទម្រង់សង្ខេបបង់ប្រាក់ ប.ស.ស) -->
       <div id="nssfPrintArea" class="space-y-4">
         <div class="text-center border-b-2 border-slate-800 pb-3">
           <p class="text-xs font-bold text-gray-500">ព្រះរាជាណាចក្រកម្ពុជា • ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
@@ -290,7 +295,6 @@
           <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-300"><p class="text-emerald-700 font-bold">ទឹកប្រាក់សរុបត្រូវបង់ធនាគារ (7.4%)</p><p id="nssfSumGrand" class="text-lg font-black text-emerald-700">0 ៛</p></div>
         </div>
 
-        <!-- តារាងបំបែកតាមរបបទាំង ៣ -->
         <table class="w-full text-left text-xs border border-gray-300">
           <thead class="bg-slate-100 font-bold border-b border-gray-300">
             <tr><th class="p-2.5 border-r">ប្រភេទរបបសន្តិសុខសង្គម</th><th class="p-2.5 border-r text-center">អត្រា (%)</th><th class="p-2.5 border-r">ភាគីទទួលបន្ទុក</th><th class="p-2.5 text-right">ទឹកប្រាក់ត្រូវបង់ (រៀល)</th></tr>
@@ -315,6 +319,7 @@
 
     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Phnom_Penh' });
     document.getElementById("filterDate").value = todayStr;
+    document.getElementById("newWJoinDate").value = todayStr;
     document.getElementById("detailMonth").value = todayStr.substring(0, 7);
 
     if (adminPassword) showDashboard();
@@ -369,7 +374,7 @@
       const list = [];
       let sumWage = 0, sum08 = 0, sum26 = 0, sumEmp2 = 0, sumComp2 = 0;
 
-      allPayroll.forEach((p, idx) => {
+      allPayroll.forEach(p => {
         const grossUsd = Number(p.grossUsd) || 0;
         if (grossUsd <= 0) return;
         const grossKhr = Math.round(grossUsd * rate);
@@ -425,11 +430,20 @@
       XLSX.writeFile(wb, fileName);
     }
 
+    function parseExcelDate(val) {
+      if (!val) return "";
+      if (typeof val === "number") {
+        const dt = new Date(Math.round((val - 25569) * 86400 * 1000));
+        return dt.toISOString().split("T")[0];
+      }
+      return val.toString().trim();
+    }
+
     function downloadWorkerTemplate() {
       exportAoaToExcel([
-        ["ID (អត្តលេខ)", "Name (ឈ្មោះ)", "Line (ផ្នែក)", "Shift (វេន)", "PIN (៤ខ្ទង់)", "Base_Salary ($)", "Allowance ($)", "Bonus ($)", "NSSF_No (លេខបណ្ណ ប.ស.ស)"],
-        ["XL00001", "សុខ ដារ៉ា", "Line 1", "ព្រឹក", "1234", 208, 0, 10, "001234567"],
-        ["XL00002", "ចាន់ ស្រីមុំ", "Line 2", "ព្រឹក", "5678", 208, 7, 10, ""]
+        ["ID (អត្តលេខ)", "Name (ឈ្មោះ)", "Line (ផ្នែក)", "Shift (វេន)", "PIN (៤ខ្ទង់)", "Base_Salary ($)", "Allowance ($)", "Bonus ($)", "NSSF_No (លេខបណ្ណ ប.ស.ស)", "Phone (លេខទូរស័ព្ទ)", "Join_Date (ថ្ងៃចូលធ្វើការ YYYY-MM-DD)"],
+        ["XL00001", "សុខ ដារ៉ា", "Line 1", "ព្រឹក", "1234", 208, 0, 10, "001234567", "012345678", todayStr],
+        ["XL00002", "ចាន់ ស្រីមុំ", "Line 2", "ព្រឹក", "5678", 208, 7, 10, "", "098765432", todayStr]
       ], "Worker_Import_Template.xlsx", "Template");
     }
 
@@ -449,7 +463,8 @@
             workersToUpload.push({
               id: wId, name: wName, line: (r[2] || "Line 1").toString().trim(), shift: (r[3] || "ព្រឹក").toString().trim(),
               pin: (r[4] || "1234").toString().trim(), salary: r[5] === "" ? 208 : Number(r[5]),
-              allowance: r[6] === "" ? 0 : Number(r[6]), bonus: r[7] === "" ? 10 : Number(r[7]), nssfNo: (r[8] || "").toString().trim()
+              allowance: r[6] === "" ? 0 : Number(r[6]), bonus: r[7] === "" ? 10 : Number(r[7]),
+              nssfNo: (r[8] || "").toString().trim(), phone: (r[9] || "").toString().trim(), joinDate: parseExcelDate(r[10])
             });
           }
           if (workersToUpload.length === 0) { alert("រកមិនឃើញទិន្នន័យបុគ្គលិកក្នុង Excel ទេ!"); e.target.value = ""; return; }
@@ -472,8 +487,8 @@
       const wb = XLSX.utils.book_new();
       const presentRows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "ស្ថានភាព", "រូបថត"]];
       allTodayRecords.forEach(r => presentRows.push([r.workerId, r.name, r.line, r.inAM, r.outAM, r.inPM, r.outPM, r.status, r.photo]));
-      const absentRows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ស្ថានភាព"]];
-      allAbsentWorkers.forEach(w => absentRows.push([w.workerId, w.name, w.line, "អវត្តមាន / មិនទាន់ស្កេន"]));
+      const absentRows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "លេខទូរស័ព្ទ", "ស្ថានភាព"]];
+      allAbsentWorkers.forEach(w => absentRows.push([w.workerId, w.name, w.line, w.phone || "-", "អវត្តមាន / មិនទាន់ស្កេន"]));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(presentRows), "Present");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(absentRows), "Absent");
       XLSX.writeFile(wb, "Attendance_" + dateVal + ".xlsx");
@@ -481,15 +496,15 @@
 
     function exportWorkersExcel() {
       if (allWorkers.length === 0) return alert("គ្មានទិន្នន័យ!");
-      const rows = [["ID", "Name", "Line", "Shift", "PIN", "Base_Salary", "Allowance", "Bonus", "NSSF_No"]];
-      allWorkers.forEach(w => rows.push([w.id, w.name, w.line, w.shift, w.pin, Number(w.salary), Number(w.allowance), Number(w.bonus), w.nssfNo]));
+      const rows = [["ID", "Name", "Line", "Shift", "PIN", "Base_Salary", "Allowance", "Bonus", "NSSF_No", "Phone", "Join_Date"]];
+      allWorkers.forEach(w => rows.push([w.id, w.name, w.line, w.shift, w.pin, Number(w.salary), Number(w.allowance), Number(w.bonus), w.nssfNo, w.phone, w.joinDate]));
       exportAoaToExcel(rows, "Workers_List.xlsx", "Workers");
     }
 
     function exportWorkerDetailExcel() {
       if (!currentWorkerDetail) return;
       const d = currentWorkerDetail;
-      const rows = [["អត្តលេខ:", d.worker.id, "ឈ្មោះ:", d.worker.name, "ផ្នែក:", d.worker.line, "ខែ:", d.month], [], ["ថ្ងៃទី", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "OT 1", "OT 2", "ស្ថានភាព"]];
+      const rows = [["អត្តលេខ:", d.worker.id, "ឈ្មោះ:", d.worker.name, "ផ្នែក:", d.worker.line, "ថ្ងៃចូល:", d.worker.joinDate || "-", "ទូរស័ព្ទ:", d.worker.phone || "-"], [], ["ថ្ងៃទី", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "OT 1", "OT 2", "ស្ថានភាព"]];
       d.days.forEach(day => rows.push([day.dayLabel, day.inAM, day.outAM, day.inPM, day.outPM, day.ot1, day.ot2, day.note]));
       exportAoaToExcel(rows, d.worker.id + "_" + d.month + ".xlsx", "Worker_History");
     }
@@ -541,8 +556,9 @@
         <tr class="border-b hover:bg-rose-50">
           <td class="p-3 font-bold"><button onclick="openWorkerDetail('${w.workerId}')" class="text-indigo-600 hover:underline">${w.workerId}</button></td>
           <td class="p-3">${w.name}</td><td class="p-3">${w.line}</td>
+          <td class="p-3 font-mono font-bold">${w.phone ? `<a href="tel:${w.phone}" class="text-indigo-600 hover:underline">📞 ${w.phone}</a>` : '<span class="text-gray-400">-</span>'}</td>
           <td class="p-3"><span class="px-2 py-1 bg-rose-100 text-rose-700 rounded-md font-bold text-[11px]">មិនទាន់ស្កេន / អវត្តមាន</span></td>
-        </tr>`).join("") : `<tr><td colspan="4" class="p-4 text-center text-emerald-600 font-bold">🎉 មកធ្វើការគ្រប់គ្នា ១០០%!</td></tr>`;
+        </tr>`).join("") : `<tr><td colspan="5" class="p-4 text-center text-emerald-600 font-bold">🎉 មកធ្វើការគ្រប់គ្នា ១០០%!</td></tr>`;
     }
 
     // ===== ២. បញ្ជីបុគ្គលិក =====
@@ -554,15 +570,20 @@
 
     function renderWorkersTable() {
       const q = document.getElementById("searchWorkers").value.toLowerCase();
-      const filtered = allWorkers.filter(w => w.id.toLowerCase().includes(q) || w.name.toLowerCase().includes(q) || w.line.toLowerCase().includes(q));
+      const filtered = allWorkers.filter(w => w.id.toLowerCase().includes(q) || w.name.toLowerCase().includes(q) || w.line.toLowerCase().includes(q) || (w.phone && w.phone.includes(q)));
       document.getElementById("workersTableBody").innerHTML = filtered.length ? filtered.map(w => `
         <tr class="border-b hover:bg-slate-50">
-          <td class="p-3 font-bold">${w.id}</td><td class="p-3 font-semibold">${w.name}</td><td class="p-3">${w.line}</td>
-          <td class="p-3 font-mono text-[11px]">${w.nssfNo || '<span class="text-gray-300">-</span>'}</td>
-          <td class="p-3">${w.deviceId ? `<span class="text-emerald-600 font-bold">🔒 ភ្ជាប់ហើយ</span>` : `<span class="text-gray-400">ទំនេរ</span>`}</td>
-          <td class="p-3 font-semibold">$${w.salary} <span class="text-gray-400 text-[10px]">(ឧ:$${w.allowance} | ទ:$${w.bonus})</span></td>
+          <td class="p-3 font-bold">${w.id}</td>
+          <td class="p-3"><div class="font-semibold">${w.name}</div><div class="text-[10px] text-gray-400">${w.line}</div></td>
+          <td class="p-3 font-mono font-semibold">${w.phone ? `<a href="tel:${w.phone}" class="text-indigo-600 hover:underline">${w.phone}</a>` : '<span class="text-gray-300">-</span>'}</td>
+          <td class="p-3 text-[11px]">${w.joinDate || '<span class="text-gray-300">-</span>'}</td>
+          <td class="p-3 text-[10px]">
+            <div>ប.ស.ស: <b>${w.nssfNo || '-'}</b></div>
+            <div>${w.deviceId ? `<span class="text-emerald-600 font-bold">🔒 ភ្ជាប់ទូរស័ព្ទហើយ</span>` : `<span class="text-gray-400">ទូរស័ព្ទទំនេរ</span>`}</div>
+          </td>
+          <td class="p-3 font-semibold">$${w.salary} <div class="text-gray-400 text-[10px]">ឧ:$${w.allowance} | ទ:$${w.bonus}</div></td>
           <td class="p-3 flex flex-wrap gap-1">
-            <button onclick="openWorkerDetail('${w.id}')" class="px-2 py-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded font-bold text-[11px]">📅 ប្រវត្តិ</button>
+            <button onclick="openWorkerDetail('${w.id}')" class="px-2 py-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded font-bold text-[11px]">📅</button>
             ${w.deviceId ? `<button onclick="resetDevice('${w.id}')" class="px-2 py-1 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded font-bold text-[11px]">🔓</button>` : ''}
             <button onclick="deleteWorker('${w.id}')" class="px-2 py-1 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded font-bold text-[11px]">🗑️</button>
           </td>
@@ -576,12 +597,13 @@
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           action: "ADD_WORKER", adminPass: adminPassword, wId: document.getElementById("newWId").value,
-          wNssfNo: document.getElementById("newWNssfNo").value,
+          wNssfNo: document.getElementById("newWNssfNo").value, wPhone: document.getElementById("newWPhone").value,
+          wJoinDate: document.getElementById("newWJoinDate").value,
           wName: document.getElementById("newWName").value, wLine: document.getElementById("newWLine").value,
           wPin: document.getElementById("newWPin").value, wSalary: document.getElementById("newWSalary").value,
           wAllowance: document.getElementById("newWAllowance").value, wBonus: document.getElementById("newWBonus").value
         })
-      }).then(res => res.json()).then(data => { btn.innerText = "រក្សាទុកបុគ្គលិកថ្មី"; btn.disabled = false; alert(data.message); if (data.success) { e.target.reset(); loadWorkers(); } });
+      }).then(res => res.json()).then(data => { btn.innerText = "រក្សាទុកបុគ្គលិកថ្មី"; btn.disabled = false; alert(data.message); if (data.success) { e.target.reset(); document.getElementById("newWJoinDate").value = todayStr; loadWorkers(); } });
     }
 
     function resetDevice(workerId) {
@@ -612,6 +634,8 @@
           currentWorkerDetail = data; document.getElementById("btnExportDetail").classList.remove("hidden");
           document.getElementById("wdName").innerText = data.worker.id + " - " + data.worker.name;
           document.getElementById("wdLine").innerText = data.worker.line + " (ខែ " + data.month + ")";
+          document.getElementById("wdJoinDate").innerText = data.worker.joinDate || "មិនបានកំណត់";
+          document.getElementById("wdPhone").innerText = data.worker.phone || "-";
           document.getElementById("wdWorked").innerText = data.stats.worked + " ថ្ងៃ";
           document.getElementById("wdAbsent").innerText = data.stats.absent + " ថ្ងៃ";
           document.getElementById("wdLate").innerText = data.stats.late + " ដង";
