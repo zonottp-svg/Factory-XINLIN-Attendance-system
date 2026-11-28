@@ -25,7 +25,7 @@
     <header class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm mb-6 gap-4">
       <div>
         <h1 class="text-2xl font-black text-gray-900 flex items-center gap-2">🏭 ផ្ទាំងគ្រប់គ្រងវត្តមាន និងប្រាក់ខែ</h1>
-        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក ថ្ងៃអាទិត្យ ថ្ងៃបុណ្យជាតិ ទាញយក Excel & គណនាប្រាក់ខែ</p>
+        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក ថ្ងៃអាទិត្យ ថ្ងៃបុណ្យជាតិ ប.ស.ស (NSSF) & Excel</p>
       </div>
       <button onclick="logoutAdmin()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition">ចាកចេញ (Logout)</button>
     </header>
@@ -36,7 +36,7 @@
       <button onclick="switchTab('workers')" id="tabBtn-workers" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">👥 បញ្ជីបុគ្គលិក</button>
       <button onclick="switchTab('workerDetail')" id="tabBtn-workerDetail" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">📅 ឆែកបុគ្គលិកម្នាក់ៗ</button>
       <button onclick="switchTab('monthly')" id="tabBtn-monthly" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">📊 បូកសរុបខែ</button>
-      <button onclick="switchTab('payroll')" id="tabBtn-payroll" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">💰 ប្រាក់ខែ</button>
+      <button onclick="switchTab('payroll')" id="tabBtn-payroll" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">💰 ប្រាក់ខែ & ប.ស.ស</button>
       <button onclick="switchTab('holidays')" id="tabBtn-holidays" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">🎌 ថ្ងៃបុណ្យជាតិ</button>
     </div>
 
@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <!-- TAB 2: បញ្ជីបុគ្គលិក + Import/Export Excel -->
+    <!-- TAB 2: បញ្ជីបុគ្គលិក -->
     <div id="tab-workers" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-sm">
@@ -253,36 +253,55 @@
       </div>
     </div>
 
-    <!-- TAB 5: តារាងប្រាក់ខែ -->
-    <div id="tab-payroll" class="tab-content hidden bg-white p-6 rounded-2xl shadow-sm">
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
-        <div>
-          <h3 class="font-bold text-gray-800 text-lg">💰 តារាងប្រាក់ខែកម្មករប្រចាំខែ</h3>
-          <p class="text-xs text-gray-500">គិតតាមច្បាប់ការងារ៖ អាទិត្យ 200%, ថ្ងៃបុណ្យ +100% (សរុប 200%), OT1 150%, OT2 200%</p>
+    <!-- TAB 5: តារាងប្រាក់ខែ & ប.ស.ស -->
+    <div id="tab-payroll" class="tab-content hidden space-y-5">
+      <!-- កាតសរុបប្រាក់ខែ និង ប.ស.ស -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+          <p class="text-xs text-gray-500 font-semibold">💵 ប្រាក់ខែបើកជូនកម្មករសរុប (Net Pay)</p>
+          <p id="payTotalNet" class="text-2xl font-black text-emerald-600 mt-1">$0.00</p>
         </div>
-        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-          <input type="text" id="searchPayroll" oninput="renderPayrollTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 flex-1">
-          <button onclick="loadPayroll()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">🔄 គណនាប្រាក់ខែឡើងវិញ</button>
-          <button onclick="exportPayrollExcel()" class="px-4 py-2 bg-slate-800 hover:bg-black text-white font-bold rounded-xl text-xs transition">📥 ទាញយក Excel</button>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500">
+          <p class="text-xs text-gray-500 font-semibold">🏥 ប.ស.ស. កាត់ពីកម្មករ (2% សោធន)</p>
+          <p id="payTotalNssfEmp" class="text-2xl font-black text-amber-600 mt-1">$0.00</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500">
+          <p class="text-xs text-gray-500 font-semibold">🏭 ប.ស.ស. បន្ថែមដោយរោងចក្រ (5.4%)</p>
+          <p id="payTotalNssfComp" class="text-2xl font-black text-indigo-600 mt-1">$0.00</p>
         </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-emerald-50 text-emerald-900 font-bold border-b">
-            <tr>
-              <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-              <th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ធ្វើការ</th><th class="p-3">អវត្តមាន</th>
-              <th class="p-3">ទៀងទាត់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th>
-              <th class="p-3">OT 2</th><th class="p-3 text-sky-700">អាទិត្យ (200%)</th><th class="p-3 text-purple-700">បុណ្យ (+100%)</th>
-              <th class="p-3">កាត់អវត្តមាន</th><th class="p-3 text-emerald-700">ប្រាក់ខែសរុប</th>
-            </tr>
-          </thead>
-          <tbody id="payrollTableBody"></tbody>
-        </table>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+          <div>
+            <h3 class="font-bold text-gray-800 text-lg">💰 តារាងប្រាក់ខែ & ប.ស.ស. (NSSF ច្បាប់ថ្មី $150 - $375)</h3>
+            <p class="text-xs text-gray-500">កាត់ ប.ស.ស កម្មករ 2% ($3 - $7.50) • អាទិត្យ 200%, បុណ្យ +100%, OT1 150%, OT2 200%</p>
+          </div>
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+            <input type="text" id="searchPayroll" oninput="renderPayrollTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 flex-1">
+            <button onclick="loadPayroll()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">🔄 គណនាឡើងវិញ</button>
+            <button onclick="exportPayrollExcel()" class="px-4 py-2 bg-slate-800 hover:bg-black text-white font-bold rounded-xl text-xs transition">📥 ទាញយក Excel</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-emerald-50 text-emerald-900 font-bold border-b">
+              <tr>
+                <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
+                <th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ធ្វើការ</th><th class="p-3">អវត្តមាន</th>
+                <th class="p-3">ទៀងទាត់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th>
+                <th class="p-3">OT 2</th><th class="p-3 text-sky-700">អាទិត្យ</th><th class="p-3 text-purple-700">បុណ្យ</th>
+                <th class="p-3">កាត់ឈប់</th><th class="p-3 text-amber-700">ប.ស.ស (2%)</th>
+                <th class="p-3 text-emerald-700">បើកសុទ្ធ</th><th class="p-3 text-indigo-700">រោងចក្រ (5.4%)</th>
+              </tr>
+            </thead>
+            <tbody id="payrollTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 6 (ថ្មី!): គ្រប់គ្រងថ្ងៃបុណ្យជាតិ -->
+    <!-- TAB 6: ថ្ងៃបុណ្យជាតិ -->
     <div id="tab-holidays" class="tab-content hidden grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-white p-6 rounded-2xl shadow-sm h-fit">
         <h3 class="font-bold text-gray-800 text-lg mb-3">🎌 បន្ថែមថ្ងៃបុណ្យជាតិ</h3>
@@ -450,9 +469,9 @@
 
     function exportPayrollExcel() {
       if (allPayroll.length === 0) return alert("គ្មានទិន្នន័យ!");
-      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ប្រាក់ខែគោល", "ថ្ងៃធ្វើការ", "អវត្តមាន", "ទៀងទាត់", "ឧបត្ថម្ភ", "OT 1", "OT 2", "អាទិត្យ (200%)", "បុណ្យ (+100%)", "កាត់អវត្តមាន", "ប្រាក់ខែសរុប"]];
-      allPayroll.forEach(p => rows.push([p.id, p.name, p.line, p.base, p.workDays, p.absent, p.bonus, p.allowance, p.ot1, p.ot2, p.sunPay, p.holPay, p.deduct, p.net]));
-      exportAoaToExcel(rows, "Monthly_Payroll_" + todayStr.substring(0, 7) + ".xlsx", "Payroll");
+      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ប្រាក់ខែគោល", "ថ្ងៃធ្វើការ", "អវត្តមាន", "ទៀងទាត់", "ឧបត្ថម្ភ", "OT 1", "OT 2", "អាទិត្យ (200%)", "បុណ្យ (+100%)", "កាត់អវត្តមាន", "កាត់ ប.ស.ស (2%)", "ប្រាក់ខែបើកសុទ្ធ", "ប.ស.ស រោងចក្រ (5.4%)"]];
+      allPayroll.forEach(p => rows.push([p.id, p.name, p.line, p.base, p.workDays, p.absent, p.bonus, p.allowance, p.ot1, p.ot2, p.sunPay, p.holPay, p.deduct, p.nssfEmp, p.net, p.nssfComp]));
+      exportAoaToExcel(rows, "Monthly_Payroll_NSSF_" + todayStr.substring(0, 7) + ".xlsx", "Payroll");
     }
 
     // ===== ១. វត្តមានប្រចាំថ្ងៃ =====
@@ -610,11 +629,19 @@
         </tr>`).join("");
     }
 
-    // ===== ៥. តារាងប្រាក់ខែ =====
+    // ===== ៥. តារាងប្រាក់ខែ & ប.ស.ស =====
     function loadPayroll() {
-      document.getElementById("payrollTableBody").innerHTML = `<tr><td colspan="14" class="p-4 text-center text-gray-400">កំពុងគណនាប្រាក់ខែ...</td></tr>`;
+      document.getElementById("payrollTableBody").innerHTML = `<tr><td colspan="16" class="p-4 text-center text-gray-400">កំពុងគណនាប្រាក់ខែ និង ប.ស.ស...</td></tr>`;
       fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_PAYROLL", adminPass: adminPassword }) })
-        .then(res => res.json()).then(data => { if (!data.success) return alert(data.message); allPayroll = data.payroll; renderPayrollTable(); });
+        .then(res => res.json()).then(data => {
+          if (!data.success) return alert(data.message);
+          if (data.totals) {
+            document.getElementById("payTotalNet").innerText = data.totals.totalNet;
+            document.getElementById("payTotalNssfEmp").innerText = data.totals.totalNssfEmp;
+            document.getElementById("payTotalNssfComp").innerText = data.totals.totalNssfComp;
+          }
+          allPayroll = data.payroll; renderPayrollTable();
+        });
     }
 
     function renderPayrollTable() {
@@ -628,11 +655,13 @@
           <td class="p-3">${p.bonus}</td><td class="p-3">${p.allowance}</td><td class="p-3">${p.ot1}</td><td class="p-3">${p.ot2}</td>
           <td class="p-3 text-sky-600 font-semibold">${p.sunPay}</td><td class="p-3 text-purple-600 font-semibold">${p.holPay}</td>
           <td class="p-3 text-rose-600">${p.deduct}</td>
+          <td class="p-3 text-amber-700 font-bold">${p.nssfEmp}</td>
           <td class="p-3 text-emerald-600 font-black text-sm">${p.net}</td>
+          <td class="p-3 text-indigo-600 font-semibold">${p.nssfComp}</td>
         </tr>`).join("");
     }
 
-    // ===== ៦. ថ្ងៃបុណ្យជាតិ (HOLIDAYS) =====
+    // ===== ៦. ថ្ងៃបុណ្យជាតិ =====
     function loadHolidays() {
       document.getElementById("holidaysTableBody").innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
       fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_HOLIDAYS", adminPass: adminPassword }) })
@@ -650,10 +679,8 @@
 
     function submitHoliday(e) {
       e.preventDefault();
-      fetch(SCRIPT_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "ADD_HOLIDAY", adminPass: adminPassword, hDate: document.getElementById("newHDate").value, hName: document.getElementById("newHName").value })
-      }).then(res => res.json()).then(data => { alert(data.message); if (data.success) { e.target.reset(); loadHolidays(); } });
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "ADD_HOLIDAY", adminPass: adminPassword, hDate: document.getElementById("newHDate").value, hName: document.getElementById("newHName").value }) })
+        .then(res => res.json()).then(data => { alert(data.message); if (data.success) { e.target.reset(); loadHolidays(); } });
     }
 
     function deleteHoliday(hDate) {
