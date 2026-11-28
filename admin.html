@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ផ្ទាំងគ្រប់គ្រង HR & ប្រាក់ខែ</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- បណ្ណាល័យបង្កើត និងអាន File Excel (.xlsx) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-gray-800">
@@ -26,7 +25,7 @@
     <header class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm mb-6 gap-4">
       <div>
         <h1 class="text-2xl font-black text-gray-900 flex items-center gap-2">🏭 ផ្ទាំងគ្រប់គ្រងវត្តមាន និងប្រាក់ខែ</h1>
-        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក វត្តមានប្រចាំថ្ងៃ ទាញយក Excel & បញ្ចូលឈ្មោះតាម Excel</p>
+        <p class="text-xs text-gray-500">គ្រប់គ្រងបុគ្គលិក ថ្ងៃអាទិត្យ ថ្ងៃបុណ្យជាតិ ទាញយក Excel & គណនាប្រាក់ខែ</p>
       </div>
       <button onclick="logoutAdmin()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition">ចាកចេញ (Logout)</button>
     </header>
@@ -38,6 +37,7 @@
       <button onclick="switchTab('workerDetail')" id="tabBtn-workerDetail" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">📅 ឆែកបុគ្គលិកម្នាក់ៗ</button>
       <button onclick="switchTab('monthly')" id="tabBtn-monthly" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">📊 បូកសរុបខែ</button>
       <button onclick="switchTab('payroll')" id="tabBtn-payroll" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">💰 ប្រាក់ខែ</button>
+      <button onclick="switchTab('holidays')" id="tabBtn-holidays" class="tab-btn px-4 py-3 font-bold text-sm text-gray-500 hover:text-indigo-600 border-b-2 border-transparent transition">🎌 ថ្ងៃបុណ្យជាតិ</button>
     </div>
 
     <!-- TAB 1: វត្តមានប្រចាំថ្ងៃ -->
@@ -101,7 +101,6 @@
     <!-- TAB 2: បញ្ជីបុគ្គលិក + Import/Export Excel -->
     <div id="tab-workers" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="space-y-6">
-        <!-- ទម្រង់បញ្ចូលម្តងម្នាក់ -->
         <div class="bg-white p-6 rounded-2xl shadow-sm">
           <h3 class="font-bold text-gray-800 text-lg mb-4">➕ បន្ថែមបុគ្គលិកម្តងម្នាក់</h3>
           <form onsubmit="submitNewWorker(event)" class="space-y-3">
@@ -141,7 +140,6 @@
           </form>
         </div>
 
-        <!-- ប្រអប់ Import/Template Excel (NEW!) -->
         <div class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-200">
           <h3 class="font-bold text-emerald-900 text-base mb-2">📂 បញ្ចូលឈ្មោះច្រើនតាម Excel (រហ័ស)</h3>
           <p class="text-[11px] text-emerald-700 mb-4 leading-relaxed">
@@ -149,9 +147,7 @@
             ២. ចុច Upload File Excel នោះចូលប្រព័ន្ធម្ដងទាំងអស់!
           </p>
           <div class="space-y-2.5">
-            <button onclick="downloadWorkerTemplate()" class="w-full bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
-              📥 ទាញយកគំរូ Excel (Template)
-            </button>
+            <button onclick="downloadWorkerTemplate()" class="w-full bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">📥 ទាញយកគំរូ Excel (Template)</button>
             <label class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 cursor-pointer">
               <span id="importBtnLabel">📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល</span>
               <input type="file" accept=".xlsx,.xls,.csv" onchange="importWorkersExcel(event)" class="hidden">
@@ -160,7 +156,6 @@
         </div>
       </div>
 
-      <!-- តារាងបុគ្គលិកទាំងអស់ -->
       <div class="bg-white p-6 rounded-2xl shadow-sm lg:col-span-2 h-fit">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
           <h3 class="font-bold text-gray-800 text-lg">👥 បញ្ជីឈ្មោះបុគ្គលិកទាំងអស់</h3>
@@ -184,7 +179,7 @@
       </div>
     </div>
 
-    <!-- TAB 3: ឆែកប្រវត្តិបុគ្គលិកម្នាក់ៗ ពីថ្ងៃទី ១ ដល់ចុងខែ -->
+    <!-- TAB 3: ឆែកប្រវត្តិបុគ្គលិកម្នាក់ៗ -->
     <div id="tab-workerDetail" class="tab-content hidden space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-sm">
         <h3 class="font-bold text-gray-800 text-lg mb-3">📅 ឆែកប្រវត្តិវត្តមានបុគ្គលិកម្នាក់ៗ (ថ្ងៃទី ១ - ចុងខែ)</h3>
@@ -208,11 +203,12 @@
             <p class="text-xs text-gray-500">បុគ្គលិក៖ <b id="wdLine" class="text-indigo-600"></b></p>
             <h4 id="wdName" class="text-xl font-black text-gray-900"></h4>
           </div>
-          <div class="flex flex-wrap gap-3 text-center">
-            <div class="bg-emerald-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-emerald-700 font-bold">មកធ្វើការ</p><p id="wdWorked" class="text-lg font-black text-emerald-700">0</p></div>
+          <div class="flex flex-wrap gap-2.5 text-center">
+            <div class="bg-emerald-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-emerald-700 font-bold">ធ្វើការធម្មតា</p><p id="wdWorked" class="text-lg font-black text-emerald-700">0</p></div>
             <div class="bg-rose-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-rose-700 font-bold">អវត្តមាន</p><p id="wdAbsent" class="text-lg font-black text-rose-700">0</p></div>
-            <div class="bg-amber-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-amber-700 font-bold">យឺត (ដង)</p><p id="wdLate" class="text-lg font-black text-amber-700">0</p></div>
-            <div class="bg-orange-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-orange-700 font-bold">ភ្លេចស្កេន (ថ្ងៃ)</p><p id="wdMissed" class="text-lg font-black text-orange-700">0</p></div>
+            <div class="bg-amber-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-amber-700 font-bold">យឺត</p><p id="wdLate" class="text-lg font-black text-amber-700">0</p></div>
+            <div class="bg-orange-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-orange-700 font-bold">ភ្លេចស្កេន</p><p id="wdMissed" class="text-lg font-black text-orange-700">0</p></div>
+            <div class="bg-sky-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-sky-700 font-bold">អាទិត្យ/បុណ្យ</p><p id="wdSpec" class="text-lg font-black text-sky-700">0h</p></div>
             <div class="bg-indigo-50 px-3 py-2 rounded-xl"><p class="text-[11px] text-indigo-700 font-bold">OT សរុប</p><p id="wdOT" class="text-lg font-black text-indigo-700">0h</p></div>
           </div>
         </div>
@@ -247,8 +243,9 @@
           <thead class="bg-indigo-50 text-indigo-900 font-bold border-b">
             <tr>
               <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-              <th class="p-3">ថ្ងៃធ្វើការ</th><th class="p-3">ថ្ងៃអវត្តមាន</th><th class="p-3">យឺត (ដង)</th>
-              <th class="p-3">ចេញមុន (ដង)</th><th class="p-3">OT 1 (h)</th><th class="p-3">OT 2 (h)</th><th class="p-3">OT សរុប (h)</th>
+              <th class="p-3">ថ្ងៃធ្វើការ</th><th class="p-3">អវត្តមាន</th><th class="p-3">យឺត</th>
+              <th class="p-3">ចេញមុន</th><th class="p-3">OT 1</th><th class="p-3">OT 2</th>
+              <th class="p-3 text-sky-700">អាទិត្យ (h)</th><th class="p-3 text-purple-700">បុណ្យ (h)</th><th class="p-3">សរុប (h)</th>
             </tr>
           </thead>
           <tbody id="monthlyTableBody"></tbody>
@@ -261,7 +258,7 @@
       <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
         <div>
           <h3 class="font-bold text-gray-800 text-lg">💰 តារាងប្រាក់ខែកម្មករប្រចាំខែ</h3>
-          <p class="text-xs text-gray-500">គណនាប្រាក់តាមថ្ងៃជាក់ស្តែង (ពាក់កណ្តាលខែ) និងពេញខែនៅចុងខែ (≥ ២៤ ថ្ងៃ)</p>
+          <p class="text-xs text-gray-500">គិតតាមច្បាប់ការងារ៖ អាទិត្យ 200%, ថ្ងៃបុណ្យ +100% (សរុប 200%), OT1 150%, OT2 200%</p>
         </div>
         <div class="flex flex-wrap gap-2 w-full sm:w-auto">
           <input type="text" id="searchPayroll" oninput="renderPayrollTable()" placeholder="🔍 ស្វែងរក..." class="px-3 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 flex-1">
@@ -274,12 +271,45 @@
           <thead class="bg-emerald-50 text-emerald-900 font-bold border-b">
             <tr>
               <th class="p-3">អត្តលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">ផ្នែក</th>
-              <th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ថ្ងៃធ្វើការ</th><th class="p-3">អវត្តមាន</th>
+              <th class="p-3">ប្រាក់ខែគោល</th><th class="p-3">ធ្វើការ</th><th class="p-3">អវត្តមាន</th>
               <th class="p-3">ទៀងទាត់</th><th class="p-3">ឧបត្ថម្ភ</th><th class="p-3">OT 1</th>
-              <th class="p-3">OT 2</th><th class="p-3">កាត់អវត្តមាន</th><th class="p-3 text-emerald-700">ប្រាក់ខែបើកសរុប</th>
+              <th class="p-3">OT 2</th><th class="p-3 text-sky-700">អាទិត្យ (200%)</th><th class="p-3 text-purple-700">បុណ្យ (+100%)</th>
+              <th class="p-3">កាត់អវត្តមាន</th><th class="p-3 text-emerald-700">ប្រាក់ខែសរុប</th>
             </tr>
           </thead>
           <tbody id="payrollTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 6 (ថ្មី!): គ្រប់គ្រងថ្ងៃបុណ្យជាតិ -->
+    <div id="tab-holidays" class="tab-content hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-2xl shadow-sm h-fit">
+        <h3 class="font-bold text-gray-800 text-lg mb-3">🎌 បន្ថែមថ្ងៃបុណ្យជាតិ</h3>
+        <p class="text-xs text-gray-500 mb-4">បន្ថែមថ្ងៃបុណ្យដើម្បីឱ្យប្រព័ន្ធដឹងថាជាថ្ងៃឈប់សម្រាកមានប្រាក់ឈ្នួល (មិនកាត់អវត្តមាន ហើយបើមកធ្វើការបាន +100%)</p>
+        <form onsubmit="submitHoliday(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">កាលបរិច្ឆេទ</label>
+            <input type="date" id="newHDate" required class="w-full px-3 py-2 border rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">ឈ្មោះថ្ងៃបុណ្យ</label>
+            <input type="text" id="newHName" placeholder="ឧ. បុណ្យអុំទូក / ចូលឆ្នាំខ្មែរ" required class="w-full px-3 py-2 border rounded-xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition">➕ បន្ថែមថ្ងៃបុណ្យ</button>
+        </form>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm md:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 text-lg">📅 បញ្ជីថ្ងៃបុណ្យជាតិក្នុងប្រព័ន្ធ</h3>
+          <button onclick="loadHolidays()" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-xs">🔄 Refresh</button>
+        </div>
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-gray-600 font-bold border-b">
+            <tr><th class="p-3">កាលបរិច្ឆេទ</th><th class="p-3">ឈ្មោះថ្ងៃបុណ្យ</th><th class="p-3">លុប</th></tr>
+          </thead>
+          <tbody id="holidaysTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -290,7 +320,7 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSi2SLRiX0cx077rWHqq1Rptqe1WH4VqVIpXxEDxnSTtNraCbbKN0IhFHnHeel2LA/exec";
 
     let adminPassword = sessionStorage.getItem("factory_admin_pass") || "";
-    let allTodayRecords = [], allAbsentWorkers = [], allWorkers = [], allMonthlyReport = [], allPayroll = [];
+    let allTodayRecords = [], allAbsentWorkers = [], allWorkers = [], allMonthlyReport = [], allPayroll = [], allHolidays = [];
     let currentWorkerDetail = null;
 
     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Phnom_Penh' });
@@ -302,9 +332,7 @@
     function loginAdmin() {
       const pass = document.getElementById("adminPasswordInput").value.trim();
       if (!pass) return alert("សូមវាយលេខកូដសម្ងាត់!");
-      adminPassword = pass;
-      sessionStorage.setItem("factory_admin_pass", pass);
-      showDashboard();
+      adminPassword = pass; sessionStorage.setItem("factory_admin_pass", pass); showDashboard();
     }
 
     function logoutAdmin() { sessionStorage.removeItem("factory_admin_pass"); location.reload(); }
@@ -328,6 +356,7 @@
       if (tabId === "workers" && allWorkers.length === 0) loadWorkers();
       if (tabId === "monthly" && allMonthlyReport.length === 0) loadMonthlyReport();
       if (tabId === "payroll" && allPayroll.length === 0) loadPayroll();
+      if (tabId === "holidays" && allHolidays.length === 0) loadHolidays();
     }
 
     function openWorkerDetail(workerId) {
@@ -336,34 +365,28 @@
       loadWorkerMonth();
     }
 
-    // ===== មុខងារ EXCEL EXPORT & IMPORT =====
+    // ===== EXCEL =====
     function exportAoaToExcel(aoa, fileName, sheetName) {
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(aoa);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName || "Sheet1");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), sheetName || "Sheet1");
       XLSX.writeFile(wb, fileName);
     }
 
     function downloadWorkerTemplate() {
-      const templateData = [
+      exportAoaToExcel([
         ["ID (អត្តលេខ)", "Name (ឈ្មោះ)", "Line (ផ្នែក)", "Shift (វេន)", "PIN (លេខសម្ងាត់ ៤ខ្ទង់)", "Base_Salary (ប្រាក់ខែគោល)", "Allowance (ឧបត្ថម្ភ)", "Bonus (ប្រាក់ទៀងទាត់)"],
         ["XL00001", "សុខ ដារ៉ា", "Line 1", "ព្រឹក", "1234", 208, 0, 10],
         ["XL00002", "ចាន់ ស្រីមុំ", "Line 2", "ព្រឹក", "5678", 208, 7, 10]
-      ];
-      exportAoaToExcel(templateData, "Worker_Import_Template.xlsx", "Template");
+      ], "Worker_Import_Template.xlsx", "Template");
     }
 
     function importWorkersExcel(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+      const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
         try {
-          const data = new Uint8Array(evt.target.result);
-          const workbook = XLSX.read(data, { type: "array" });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
-
+          const workbook = XLSX.read(new Uint8Array(evt.target.result), { type: "array" });
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: "" });
           const workersToUpload = [];
           for (let i = 1; i < rows.length; i++) {
             const r = rows[i];
@@ -371,47 +394,22 @@
             const wName = (r[1] || "").toString().trim();
             if (!wId || !wName) continue;
             workersToUpload.push({
-              id: wId, name: wName,
-              line: (r[2] || "Line 1").toString().trim(),
-              shift: (r[3] || "ព្រឹក").toString().trim(),
-              pin: (r[4] || "1234").toString().trim(),
-              salary: r[5] === "" ? 208 : Number(r[5]),
-              allowance: r[6] === "" ? 0 : Number(r[6]),
-              bonus: r[7] === "" ? 10 : Number(r[7])
+              id: wId, name: wName, line: (r[2] || "Line 1").toString().trim(), shift: (r[3] || "ព្រឹក").toString().trim(),
+              pin: (r[4] || "1234").toString().trim(), salary: r[5] === "" ? 208 : Number(r[5]),
+              allowance: r[6] === "" ? 0 : Number(r[6]), bonus: r[7] === "" ? 10 : Number(r[7])
             });
           }
-
-          if (workersToUpload.length === 0) {
-            alert("រកមិនឃើញទិន្នន័យបុគ្គលិកក្នុង File Excel ទេ!");
-            e.target.value = ""; return;
-          }
-
-          if (!confirm("រកឃើញបុគ្គលិកចំនួន " + workersToUpload.length + " នាក់! តើអ្នកចង់បញ្ចូលទៅក្នុងប្រព័ន្ធឥឡូវនេះទេ?")) {
-            e.target.value = ""; return;
-          }
+          if (workersToUpload.length === 0) { alert("រកមិនឃើញទិន្នន័យបុគ្គលិកក្នុង Excel ទេ!"); e.target.value = ""; return; }
+          if (!confirm("រកឃើញបុគ្គលិកចំនួន " + workersToUpload.length + " នាក់! បញ្ចូលទៅក្នុងប្រព័ន្ធឥឡូវនេះ?")) { e.target.value = ""; return; }
 
           const btnLabel = document.getElementById("importBtnLabel");
           btnLabel.innerText = "⏳ កំពុងបញ្ចូល " + workersToUpload.length + " នាក់...";
-
-          fetch(SCRIPT_URL, {
-            method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "BULK_ADD_WORKERS", adminPass: adminPassword, workers: workersToUpload })
-          })
-          .then(res => res.json())
-          .then(resData => {
-            btnLabel.innerText = "📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល";
-            e.target.value = "";
-            alert(resData.message);
-            if (resData.success) loadWorkers();
-          })
-          .catch(err => {
-            btnLabel.innerText = "📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល";
-            e.target.value = ""; alert("កំហុស៖ " + err.message);
-          });
-        } catch (err) {
-          alert("មិនអាចអាន File Excel នេះបានទេ: " + err.message);
-          e.target.value = "";
-        }
+          fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "BULK_ADD_WORKERS", adminPass: adminPassword, workers: workersToUpload }) })
+            .then(res => res.json()).then(resData => {
+              btnLabel.innerText = "📤 ជ្រើសរើស File Excel ដើម្បីបញ្ចូល"; e.target.value = "";
+              alert(resData.message); if (resData.success) loadWorkers();
+            });
+        } catch (err) { alert("មិនអាចអាន File Excel នេះបានទេ: " + err.message); e.target.value = ""; }
       };
       reader.readAsArrayBuffer(file);
     }
@@ -429,7 +427,7 @@
     }
 
     function exportWorkersExcel() {
-      if (allWorkers.length === 0) return alert("គ្មានទិន្នន័យសម្រាប់ទាញយកទេ!");
+      if (allWorkers.length === 0) return alert("គ្មានទិន្នន័យ!");
       const rows = [["ID", "Name", "Line", "Shift", "PIN", "Base_Salary", "Allowance", "Bonus"]];
       allWorkers.forEach(w => rows.push([w.id, w.name, w.line, w.shift, w.pin, Number(w.salary), Number(w.allowance), Number(w.bonus)]));
       exportAoaToExcel(rows, "Workers_List.xlsx", "Workers");
@@ -438,26 +436,22 @@
     function exportWorkerDetailExcel() {
       if (!currentWorkerDetail) return;
       const d = currentWorkerDetail;
-      const rows = [
-        ["អត្តលេខ:", d.worker.id, "ឈ្មោះ:", d.worker.name, "ផ្នែក:", d.worker.line, "ខែ:", d.month],
-        [],
-        ["ថ្ងៃទី", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "OT 1 (h)", "OT 2 (h)", "ស្ថានភាព & កំណត់សម្គាល់"]
-      ];
+      const rows = [["អត្តលេខ:", d.worker.id, "ឈ្មោះ:", d.worker.name, "ផ្នែក:", d.worker.line, "ខែ:", d.month], [], ["ថ្ងៃទី", "ព្រឹកចូល", "ព្រឹកចេញ", "ថ្ងៃចូល", "ល្ងាចចេញ", "OT 1", "OT 2", "ស្ថានភាព"]];
       d.days.forEach(day => rows.push([day.dayLabel, day.inAM, day.outAM, day.inPM, day.outPM, day.ot1, day.ot2, day.note]));
       exportAoaToExcel(rows, d.worker.id + "_" + d.month + ".xlsx", "Worker_History");
     }
 
     function exportMonthlyExcel() {
-      if (allMonthlyReport.length === 0) return alert("គ្មានទិន្នន័យសម្រាប់ទាញយកទេ!");
-      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ថ្ងៃធ្វើការ", "ថ្ងៃអវត្តមាន", "យឺត (ដង)", "ចេញមុន (ដង)", "OT 1 (h)", "OT 2 (h)", "OT សរុប (h)"]];
-      allMonthlyReport.forEach(r => rows.push([r.id, r.name, r.line, r.workDays, r.absentDays, r.lateCount, r.earlyCount, r.ot1, r.ot2, r.totalOt]));
+      if (allMonthlyReport.length === 0) return alert("គ្មានទិន្នន័យ!");
+      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ថ្ងៃធ្វើការ", "អវត្តមាន", "យឺត", "ចេញមុន", "OT 1", "OT 2", "អាទិត្យ (h)", "បុណ្យ (h)", "OT សរុប (h)"]];
+      allMonthlyReport.forEach(r => rows.push([r.id, r.name, r.line, r.workDays, r.absentDays, r.lateCount, r.earlyCount, r.ot1, r.ot2, r.sunHrs, r.holHrs, r.totalOt]));
       exportAoaToExcel(rows, "Monthly_Report_" + todayStr.substring(0, 7) + ".xlsx", "Monthly_Report");
     }
 
     function exportPayrollExcel() {
-      if (allPayroll.length === 0) return alert("គ្មានទិន្នន័យសម្រាប់ទាញយកទេ!");
-      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ប្រាក់ខែគោល", "ថ្ងៃធ្វើការ", "អវត្តមាន", "ទៀងទាត់", "ឧបត្ថម្ភ", "OT 1", "OT 2", "កាត់អវត្តមាន", "ប្រាក់ខែបើកសរុប"]];
-      allPayroll.forEach(p => rows.push([p.id, p.name, p.line, p.base, p.workDays, p.absent, p.bonus, p.allowance, p.ot1, p.ot2, p.deduct, p.net]));
+      if (allPayroll.length === 0) return alert("គ្មានទិន្នន័យ!");
+      const rows = [["អត្តលេខ", "ឈ្មោះ", "ផ្នែក", "ប្រាក់ខែគោល", "ថ្ងៃធ្វើការ", "អវត្តមាន", "ទៀងទាត់", "ឧបត្ថម្ភ", "OT 1", "OT 2", "អាទិត្យ (200%)", "បុណ្យ (+100%)", "កាត់អវត្តមាន", "ប្រាក់ខែសរុប"]];
+      allPayroll.forEach(p => rows.push([p.id, p.name, p.line, p.base, p.workDays, p.absent, p.bonus, p.allowance, p.ot1, p.ot2, p.sunPay, p.holPay, p.deduct, p.net]));
       exportAoaToExcel(rows, "Monthly_Payroll_" + todayStr.substring(0, 7) + ".xlsx", "Payroll");
     }
 
@@ -465,25 +459,21 @@
     function loadDashboard() {
       const dateVal = document.getElementById("filterDate").value;
       document.getElementById("todayTableBody").innerHTML = `<tr><td colspan="9" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
-      fetch(SCRIPT_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "GET_DASHBOARD", adminPass: adminPassword, date: dateVal })
-      }).then(res => res.json()).then(data => {
-        if (!data.success) { alert(data.message); logoutAdmin(); return; }
-        document.getElementById("statTotal").innerText = data.totalWorkers;
-        document.getElementById("statPresent").innerText = data.presentCount;
-        document.getElementById("statAbsent").innerText = data.absentCount;
-        document.getElementById("statLate").innerText = data.lateCount;
-        allTodayRecords = data.records; allAbsentWorkers = data.absentWorkers;
-        filterTodayTables();
-      });
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_DASHBOARD", adminPass: adminPassword, date: dateVal }) })
+        .then(res => res.json()).then(data => {
+          if (!data.success) { alert(data.message); logoutAdmin(); return; }
+          document.getElementById("statTotal").innerText = data.totalWorkers;
+          document.getElementById("statPresent").innerText = data.presentCount;
+          document.getElementById("statAbsent").innerText = data.absentCount;
+          document.getElementById("statLate").innerText = data.lateCount;
+          allTodayRecords = data.records; allAbsentWorkers = data.absentWorkers; filterTodayTables();
+        });
     }
 
     function filterTodayTables() {
       const q = document.getElementById("searchToday").value.toLowerCase();
       const fp = allTodayRecords.filter(r => r.workerId.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || r.line.toLowerCase().includes(q));
       const fa = allAbsentWorkers.filter(r => r.workerId.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || r.line.toLowerCase().includes(q));
-
       document.getElementById("todayTableBody").innerHTML = fp.length ? fp.map(r => `
         <tr class="border-b hover:bg-slate-50">
           <td class="p-3 font-bold"><button onclick="openWorkerDetail('${r.workerId}')" class="text-indigo-600 hover:underline">${r.workerId}</button></td>
@@ -505,10 +495,8 @@
     // ===== ២. បញ្ជីបុគ្គលិក =====
     function loadWorkers() {
       document.getElementById("workersTableBody").innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
-      fetch(SCRIPT_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "GET_WORKERS", adminPass: adminPassword })
-      }).then(res => res.json()).then(data => { if (!data.success) return alert(data.message); allWorkers = data.workers; renderWorkersTable(); });
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_WORKERS", adminPass: adminPassword }) })
+        .then(res => res.json()).then(data => { if (!data.success) return alert(data.message); allWorkers = data.workers; renderWorkersTable(); });
     }
 
     function renderWorkersTable() {
@@ -564,49 +552,45 @@
       document.getElementById("btnExportDetail").classList.add("hidden");
       document.getElementById("workerDetailTableBody").innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-400">កំពុងទាញប្រវត្តិពីថ្ងៃទី ១ ដល់ចុងខែ...</td></tr>`;
 
-      fetch(SCRIPT_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "GET_WORKER_MONTH", adminPass: adminPassword, workerId: wId, month: month })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) { alert(data.message); document.getElementById("workerDetailResult").classList.add("hidden"); return; }
-        currentWorkerDetail = data;
-        document.getElementById("btnExportDetail").classList.remove("hidden");
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_WORKER_MONTH", adminPass: adminPassword, workerId: wId, month: month }) })
+        .then(res => res.json()).then(data => {
+          if (!data.success) { alert(data.message); document.getElementById("workerDetailResult").classList.add("hidden"); return; }
+          currentWorkerDetail = data; document.getElementById("btnExportDetail").classList.remove("hidden");
+          document.getElementById("wdName").innerText = data.worker.id + " - " + data.worker.name;
+          document.getElementById("wdLine").innerText = data.worker.line + " (ខែ " + data.month + ")";
+          document.getElementById("wdWorked").innerText = data.stats.worked + " ថ្ងៃ";
+          document.getElementById("wdAbsent").innerText = data.stats.absent + " ថ្ងៃ";
+          document.getElementById("wdLate").innerText = data.stats.late + " ដង";
+          document.getElementById("wdMissed").innerText = data.stats.missingScan + " ថ្ងៃ";
+          document.getElementById("wdSpec").innerText = (data.stats.sunHrs + data.stats.holHrs) + "h";
+          document.getElementById("wdOT").innerText = (data.stats.ot1 + data.stats.ot2) + "h";
 
-        document.getElementById("wdName").innerText = data.worker.id + " - " + data.worker.name;
-        document.getElementById("wdLine").innerText = data.worker.line + " (ខែ " + data.month + ")";
-        document.getElementById("wdWorked").innerText = data.stats.worked + " ថ្ងៃ";
-        document.getElementById("wdAbsent").innerText = data.stats.absent + " ថ្ងៃ";
-        document.getElementById("wdLate").innerText = data.stats.late + " ដង";
-        document.getElementById("wdMissed").innerText = data.stats.missingScan + " ថ្ងៃ";
-        document.getElementById("wdOT").innerText = (data.stats.ot1 + data.stats.ot2) + "h";
+          const badgeMap = {
+            OK: "bg-emerald-100 text-emerald-700", WARN: "bg-amber-100 text-amber-800",
+            MISSING: "bg-orange-100 text-orange-800", ABSENT: "bg-rose-100 text-rose-700",
+            SUNDAY: "bg-sky-50 text-sky-600", HOLIDAY: "bg-purple-100 text-purple-700",
+            SPECIAL: "bg-indigo-100 text-indigo-800", UPCOMING: "bg-gray-100 text-gray-400"
+          };
 
-        const badgeMap = {
-          OK: "bg-emerald-100 text-emerald-700", WARN: "bg-amber-100 text-amber-800",
-          MISSING: "bg-orange-100 text-orange-800", ABSENT: "bg-rose-100 text-rose-700",
-          SUNDAY: "bg-sky-50 text-sky-600", UPCOMING: "bg-gray-100 text-gray-400"
-        };
-
-        document.getElementById("workerDetailTableBody").innerHTML = data.days.map(d => {
-          const rowBg = d.isToday ? "bg-indigo-50/50" : (d.stateType === "SUNDAY" ? "bg-sky-50/30" : (d.stateType === "UPCOMING" ? "text-gray-400" : ""));
-          const formatCell = val => val.includes("❌") ? `<span class="text-rose-500 font-bold">${val}</span>` : val;
-          return `
-            <tr class="border-b ${rowBg}">
-              <td class="p-3 font-bold">${d.dayLabel} ${d.isToday ? '<span class="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded">ថ្ងៃនេះ</span>' : ''}</td>
-              <td class="p-3">${formatCell(d.inAM)}</td><td class="p-3">${formatCell(d.outAM)}</td>
-              <td class="p-3">${formatCell(d.inPM)}</td><td class="p-3">${formatCell(d.outPM)}</td>
-              <td class="p-3 font-bold">${(d.ot1 + d.ot2) > 0 ? `<span class="text-indigo-600">${d.ot1}h / ${d.ot2}h</span>` : '-'}</td>
-              <td class="p-3"><span class="px-2 py-1 rounded-md font-semibold text-[11px] ${badgeMap[d.stateType]}">${d.note}</span></td>
-              <td class="p-3">${d.photo ? `<a href="${d.photo}" target="_blank" class="text-indigo-600 hover:underline font-bold">📷 មើលរូប</a>` : '-'}</td>
-            </tr>`;
-        }).join("");
-      });
+          document.getElementById("workerDetailTableBody").innerHTML = data.days.map(d => {
+            const rowBg = d.isToday ? "bg-indigo-50/50" : (d.stateType === "SUNDAY" ? "bg-sky-50/30" : (d.stateType === "HOLIDAY" ? "bg-purple-50/40" : (d.stateType === "UPCOMING" ? "text-gray-400" : "")));
+            const formatCell = val => val.includes("❌") ? `<span class="text-rose-500 font-bold">${val}</span>` : val;
+            return `
+              <tr class="border-b ${rowBg}">
+                <td class="p-3 font-bold">${d.dayLabel} ${d.isToday ? '<span class="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded">ថ្ងៃនេះ</span>' : ''}</td>
+                <td class="p-3">${formatCell(d.inAM)}</td><td class="p-3">${formatCell(d.outAM)}</td>
+                <td class="p-3">${formatCell(d.inPM)}</td><td class="p-3">${formatCell(d.outPM)}</td>
+                <td class="p-3 font-bold">${(d.ot1 + d.ot2) > 0 ? `<span class="text-indigo-600">${d.ot1}h / ${d.ot2}h</span>` : '-'}</td>
+                <td class="p-3"><span class="px-2 py-1 rounded-md font-semibold text-[11px] ${badgeMap[d.stateType]}">${d.note}</span></td>
+                <td class="p-3">${d.photo ? `<a href="${d.photo}" target="_blank" class="text-indigo-600 hover:underline font-bold">📷 មើលរូប</a>` : '-'}</td>
+              </tr>`;
+          }).join("");
+        });
     }
 
     // ===== ៤. បូកសរុបប្រចាំខែ =====
     function loadMonthlyReport() {
-      document.getElementById("monthlyTableBody").innerHTML = `<tr><td colspan="10" class="p-4 text-center text-gray-400">កំពុងបូកសរុប...</td></tr>`;
+      document.getElementById("monthlyTableBody").innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-400">កំពុងបូកសរុប...</td></tr>`;
       fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_MONTHLY_REPORT", adminPass: adminPassword }) })
         .then(res => res.json()).then(data => { if (!data.success) return alert(data.message); allMonthlyReport = data.report; renderMonthlyTable(); });
     }
@@ -620,13 +604,15 @@
           <td class="p-3 font-semibold">${r.name}</td><td class="p-3">${r.line}</td>
           <td class="p-3 font-bold text-emerald-600">${r.workDays}</td><td class="p-3 font-bold text-rose-600">${r.absentDays}</td>
           <td class="p-3">${r.lateCount}</td><td class="p-3">${r.earlyCount}</td>
-          <td class="p-3">${r.ot1}</td><td class="p-3">${r.ot2}</td><td class="p-3 font-bold text-indigo-600">${r.totalOt}</td>
+          <td class="p-3">${r.ot1}</td><td class="p-3">${r.ot2}</td>
+          <td class="p-3 font-bold text-sky-600">${r.sunHrs}h</td><td class="p-3 font-bold text-purple-600">${r.holHrs}h</td>
+          <td class="p-3 font-bold text-indigo-600">${r.totalOt}h</td>
         </tr>`).join("");
     }
 
     // ===== ៥. តារាងប្រាក់ខែ =====
     function loadPayroll() {
-      document.getElementById("payrollTableBody").innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-400">កំពុងគណនាប្រាក់ខែ...</td></tr>`;
+      document.getElementById("payrollTableBody").innerHTML = `<tr><td colspan="14" class="p-4 text-center text-gray-400">កំពុងគណនាប្រាក់ខែ...</td></tr>`;
       fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_PAYROLL", adminPass: adminPassword }) })
         .then(res => res.json()).then(data => { if (!data.success) return alert(data.message); allPayroll = data.payroll; renderPayrollTable(); });
     }
@@ -639,10 +625,41 @@
           <td class="p-3 font-bold"><button onclick="openWorkerDetail('${p.id}')" class="text-indigo-600 hover:underline">${p.id}</button></td>
           <td class="p-3 font-semibold">${p.name}</td><td class="p-3">${p.line}</td>
           <td class="p-3">${p.base}</td><td class="p-3">${p.workDays}</td><td class="p-3 text-rose-600 font-bold">${p.absent}</td>
-          <td class="p-3">${p.bonus}</td><td class="p-3">${p.allowance}</td><td class="p-3">${p.ot1}</td>
-          <td class="p-3">${p.ot2}</td><td class="p-3 text-rose-600">${p.deduct}</td>
+          <td class="p-3">${p.bonus}</td><td class="p-3">${p.allowance}</td><td class="p-3">${p.ot1}</td><td class="p-3">${p.ot2}</td>
+          <td class="p-3 text-sky-600 font-semibold">${p.sunPay}</td><td class="p-3 text-purple-600 font-semibold">${p.holPay}</td>
+          <td class="p-3 text-rose-600">${p.deduct}</td>
           <td class="p-3 text-emerald-600 font-black text-sm">${p.net}</td>
         </tr>`).join("");
+    }
+
+    // ===== ៦. ថ្ងៃបុណ្យជាតិ (HOLIDAYS) =====
+    function loadHolidays() {
+      document.getElementById("holidaysTableBody").innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">កំពុងទាញទិន្នន័យ...</td></tr>`;
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "GET_HOLIDAYS", adminPass: adminPassword }) })
+        .then(res => res.json()).then(data => {
+          if (!data.success) return alert(data.message);
+          allHolidays = data.holidays;
+          document.getElementById("holidaysTableBody").innerHTML = allHolidays.length ? allHolidays.map(h => `
+            <tr class="border-b hover:bg-slate-50">
+              <td class="p-3 font-bold text-indigo-700">${h.date}</td>
+              <td class="p-3 font-semibold">${h.name}</td>
+              <td class="p-3"><button onclick="deleteHoliday('${h.date}')" class="px-2 py-1 bg-rose-100 text-rose-700 rounded font-bold text-[11px]">🗑️ លុប</button></td>
+            </tr>`).join("") : `<tr><td colspan="3" class="p-4 text-center text-gray-400">មិនទាន់មានថ្ងៃបុណ្យជាតិក្នុងប្រព័ន្ធទេ។</td></tr>`;
+        });
+    }
+
+    function submitHoliday(e) {
+      e.preventDefault();
+      fetch(SCRIPT_URL, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "ADD_HOLIDAY", adminPass: adminPassword, hDate: document.getElementById("newHDate").value, hName: document.getElementById("newHName").value })
+      }).then(res => res.json()).then(data => { alert(data.message); if (data.success) { e.target.reset(); loadHolidays(); } });
+    }
+
+    function deleteHoliday(hDate) {
+      if (!confirm("លុបថ្ងៃបុណ្យ " + hDate + " មែនទេ?")) return;
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "DELETE_HOLIDAY", adminPass: adminPassword, hDate: hDate }) })
+        .then(res => res.json()).then(data => { alert(data.message); loadHolidays(); });
     }
   </script>
 </body>
